@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olfactory Journal & Inventory</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { width: 100%; overflow-x: hidden; }
+body {
+  background: #f5f5f5;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.journal {
+  width: 100vw;
+  height: 100svh; 
+  position: relative;
+  overflow: hidden;
+  background: #f2eee8;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.7s cubic-bezier(.77,0,.18,1);
+  z-index: 1;
+  will-change: transform;
+  overflow: hidden;
+}
+.slide.prev { transform: translate3d(-100%, 0, 0); }
+.slide.active { transform: translate3d(0, 0, 0); }
+.slide.next { transform: translate3d(100%, 0, 0); }
+
+.hero-shell {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 22vh; 
+  display: grid;
+  grid-template-columns: minmax(320px, 40vw) 1fr; 
+  align-items: flex-end; 
+  padding: 0 6vw; 
+  z-index: 4;
+}
+
+.hero-left {
+  position: relative;
+  z-index: 4;
+  color: #2a1a14;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; 
+  padding-left: 10vw;
+  padding-bottom: 0; 
+}
+.hero-title {
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: clamp(56px, 6vw, 100px);
+  line-height: 0.92;
+  letter-spacing: -3px;
+  font-weight: 500;
+  color: #24120d;
+}
+.hero-subtitle {
+  margin-top: 36px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(42, 26, 20, 0.54);
+}
+.hero-body {
+  margin-top: 42px;
+  font-size: clamp(16px, 1.4vw, 22px);
+  line-height: 1.5;
+  color: rgba(42, 26, 20, 0.62);
+  max-width: 400px;
+}
+
+.hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 50px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #2e1b15;
+  text-decoration: none;
+  padding-bottom: 5px; 
+  align-self: flex-start;
+  position: relative;
+  transform: translateY(-10px);
+}
+
+.hero-link::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  height: 1.5px;
+  background-color: rgba(46, 27, 21, 0.55);
+  width: calc(100% - 35px); 
+}
+
+.hero-link::after {
+  content: '→';
+  font-size: 20px;
+  line-height: 1;
+}
+
+.hero-right {
+  position: relative;
+  display: flex;
+  align-items: flex-end; 
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.museum-slide {
+  background-image: url('background.png'); 
+  background-size: cover;
+  background-position: center bottom; 
+  background-repeat: no-repeat;
+}
+
+.random-aura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 1;
+}
+.random-aura::before {
+  content: '';
+  position: absolute;
+  left: 70%;
+  top: 40%;
+  width: 500px;
+  height: 500px;
+  transform: translate(-50%, -50%);
+  background-image: var(--aura-image);
+  background-size: cover;
+  background-position: center;
+  filter: blur(70px) saturate(1.2);
+  opacity: 0.12; 
+}
+.museum-slide.revealed .random-aura { opacity: 1; }
+
+.frame-wrap {
+  position: relative;
+  height: 58vh; 
+  width: calc(58vh * 0.75); 
+  perspective: 2000px;
+  z-index: 5;
+  transform: translateX(-5vw) translateY(-4vh);
+}
+
+#slide-1 .frame-wrap {
+  transform: translateX(-45vw) translateY(-4vh) ; 
+}
+
+.pantone-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 5;
+  cursor: pointer;
+  transform-origin: bottom center; 
+  transform: rotateX(5deg) rotateY(-2deg) rotateZ(0deg); 
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+}
+.pantone-wrap:hover {
+  transform: rotateX(3deg) rotateY(-1deg) rotateZ(0deg) scale(1.02);
+}
+
+.card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(.4,0,.2,1);
+  width: 100%; height: 100%;
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #fbfaf7;
+  border-radius: 2px;
+  padding: 6% 5%; 
+  display: block; 
+  
+  box-shadow: 
+    inset 3px 0px 4px rgba(255, 255, 255, 1),
+    inset 0px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -4px 0px 8px rgba(0, 0, 0, 0.04), 
+    5px 15px 20px -8px rgba(35, 20, 10, 0.5), 
+    20px 20px 40px -10px rgba(35, 20, 10, 0.25);
+}
+
+.card-front { transform: rotateY(0deg) translateZ(1px); }
+.card-back { transform: rotateY(180deg) translateZ(1px); }
+
+.card-front::before, .card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+  pointer-events: none;
+  z-index: 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-swatch {
+  width: 87%; 
+  aspect-ratio: 1 / 1; 
+  background: #efece6;
+  position: relative;
+  z-index: 3;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  margin: 0 0 15px 1%; 
+  overflow: hidden;
+}
+.swatch-img { width: 100%; height: 100%; object-fit: cover; }
+
+.card-info { 
+  position: relative;
+  width: 75%; 
+  text-align: left; 
+  margin: 0;
+  z-index: 3;
+}
+.card-name {
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 500;
+  line-height: 1.1;
+  color: #24120d;
+  margin-bottom: 6px;
+}
+.card-cas {
+  font-size: 10px;
+  color: rgba(57, 43, 33, 0.65);
+  letter-spacing: 1.5px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+}
+
+.random-front-face { background: #f4efe8; }
+.random-front-face .card-swatch { background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(244,240,234,0.92)); display: flex; align-items: center; justify-content: center;}
+.random-front-mark {
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: clamp(48px, 5vw, 64px);
+  color: rgba(131, 112, 95, 0.28);
+  line-height: 1;
+}
+.random-front-face .card-name {
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: rgba(64, 47, 38, 0.5);
+}
+
+.video-slide { background: #1e1a17; }
+.video-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.video-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(0,0,0,0.3) 0%, transparent 100%); }
+.video-grain { position: absolute; inset: 0; z-index: 2; opacity: 0.08; background-image: radial-gradient(circle, rgba(255,255,255,0.4) 0.7px, transparent 0.7px); background-size: 14px 14px; mix-blend-mode: screen; pointer-events: none; }
+.video-slide .card-front, .video-slide .card-back { background: #fbfaf7; }
+
+.dots {
+  position: absolute;
+  left: 50%;
+  bottom: 12vh; 
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 8;
+}
+.dot {
+  width: 8px; 
+  height: 8px; 
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease;
+}
+.dot:hover { transform: scale(1.15); }
+.dot.active {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(255,255,255,1);
+  transform: scale(1.25);
+}
+
+@media (max-width: 1280px) {
+  .hero-shell { padding: 0 4vw; }
+}
+@media (max-width: 980px) {
+  .hero-shell { padding: 0 3vw; grid-template-columns: minmax(280px, 45vw) 1fr; }
+  .hero-title { font-size: clamp(38px, 6vw, 60px); letter-spacing: -1px; }
+  .hero-body { font-size: 14px; margin-top: 24px; }
+  .pantone-wrap { transform: rotateX(2deg) rotateY(0deg); }
+}
+
+.inventory-section { width: 100vw; min-height: 100vh; position: relative; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 15vh, rgba(255, 255, 255, 0.8) 100%), url('ojbackground-1.png'); background-size: cover; background-position: center; background-attachment: fixed; z-index: 1; }
+.filter-bar { position: relative; padding: 28px 0 28px 38px; z-index: 100; display: flex; align-items: flex-start; }
+.filter-box { border: 2px solid rgba(0,0,0,0.8); background: rgba(255,255,255,0.78); backdrop-filter: blur(8px); padding: 10px 16px; min-width: 140px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 500; letter-spacing: 1.8px; position: relative; cursor: pointer; }
+.filter-box::after { content: '▼'; font-size: 12px; margin-left: 10px; }
+.filter-dropdown { position: absolute; top: 100%; left: -2px; width: calc(100% + 4px); background: #fff; border: 2px solid #000; display: none; flex-direction: column; z-index: 101; max-height: 45vh; overflow-y: auto; }
+.filter-dropdown::-webkit-scrollbar { width: 6px; }
+.filter-dropdown::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.filter-dropdown div { padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.2s; cursor: pointer; }
+.filter-dropdown div:hover, .filter-dropdown div.focused { background: #000; color: #fff; }
+.scent-grid { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 0; border: none; margin-top: 0; }
+.grid-item { aspect-ratio: 3 / 4; position: relative; overflow: hidden; border: none; cursor: pointer; transition: opacity 0.3s; }
+.grid-item:hover { opacity: 0.85; }
+.grid-item img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.item-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: transparent; z-index: 2; }
+.item-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: 1.2px; font-size: 13px; color: #fff; text-align: center; padding: 0 24px; line-height: 1.35; text-shadow: 0 2px 12px rgba(0,0,0,0.5); }
+.pagination-area { padding: 80px 0 100px; display: flex; justify-content: center; align-items: center; gap: 12px; }
+.page-num { width: 18px; height: 2px; background: rgba(0, 0, 0, 0.15); border: none; padding: 0; cursor: pointer; transition: width 0.4s cubic-bezier(.4,0,.2,1), background 0.4s ease; font-size: 0; color: transparent; }
+.page-num:hover { background: rgba(0, 0, 0, 0.4); }
+.page-num.active { width: 48px; background: #161616; }
+
+.detail-modal { position: fixed; inset: 0; z-index: 99999; display: none; background: rgba(20,20,20,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px; }
+.detail-stage { position: relative; width: 100%; height: 100%; border-radius: 24px; overflow: hidden; background: #efede3; box-shadow: 0 18px 60px rgba(0,0,0,0.12); }
+.detail-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: left center; z-index: 0; }
+.detail-bg-gradient { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(239, 237, 227, 0) 0%, rgba(239, 237, 227, 0) 35%, rgba(239, 237, 227, 0.7) 50%, rgba(239, 237, 227, 1) 62%, rgba(239, 237, 227, 1) 100%); pointer-events: none; }
+.detail-content-wrap { position: absolute; inset: 0; z-index: 2; display: grid; grid-template-columns: minmax(0, 50fr) minmax(400px, 50fr); pointer-events: none; }
+.detail-left { position: relative; height: 100%; pointer-events: none; }
+.detail-brand { position: absolute; top: 40px; left: 40px; color: rgba(255,255,255,0.94); font-size: 11px; letter-spacing: 3px; line-height: 1.45; text-transform: uppercase; border-bottom: 1px solid rgba(255, 255, 255, 0.5); padding-bottom: 12px; pointer-events: auto; }
+.detail-back { position: absolute; top: 100px; left: 40px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: transform 0.25s ease, background 0.25s ease; pointer-events: auto; }
+.detail-back:hover { transform: translateX(-2px); background: rgba(255,255,255,0.12); }
+.detail-index { position: absolute; left: 61px; top: 170px; bottom: 40px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,0.95); pointer-events: auto; }
+.detail-index-number { font-size: 10px; letter-spacing: 2px; user-select: none; }
+.detail-index-line { position: relative; width: 16px; flex: 1; display: flex; justify-content: center; cursor: pointer; }
+.detail-index-line::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-50%); border-radius: 999px; background: rgba(255,255,255,0.35); }
+.detail-index-dot { position: absolute; left: 50%; top: var(--progress-pos, 0%); transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.2); z-index: 2; transition: top 0.05s ease-out; pointer-events: none; }
+.detail-right { position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; padding: 26px 34px 28px 28px; display: flex; flex-direction: column; color: #161616; background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.04) 0%, transparent 35%); pointer-events: auto; }
+.detail-right::-webkit-scrollbar { width: 6px; }
+.detail-right::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 999px; }
+.detail-close { position: absolute; top: 22px; right: 22px; width: 44px; height: 44px; border-radius: 50%; border: 1.2px solid rgba(40,40,40,0.28); background: rgba(255,255,255,0.14); color: #2b2b2b; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; cursor: pointer; transition: transform 0.25s ease, border-color 0.25s ease; }
+.detail-close:hover { transform: rotate(90deg); border-color: rgba(40,40,40,0.6); }
+.detail-note-kicker { margin-top: 56px; color: var(--accent, #7a8f5b); font-size: 10px; letter-spacing: 3px; text-transform: uppercase;text-align: right; display: inline-block;float: right; 
+  clear: right;}
+.detail-note-kicker::after { content: ''; display: block; width: 100%; height: 2px; margin-top: 4px; background: var(--accent, #89a06a); border-radius: 999px; margin-left: auto; 
+  margin-right: 3px;}
+.detail-title { margin-top: 8px; font-family: "Times New Roman", Georgia, serif; font-size: clamp(24px, 2.5vw, 42px); line-height: 1.05; letter-spacing: -0.2px; font-weight: 600; color: #10140d; word-break: break-word; max-width: 480px; }
+.detail-meta-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(3, minmax(0, max-content)); gap: 16px 24px; align-items: flex-start; }
+.detail-meta-block { display: flex; flex-direction: column; gap: 4px; }
+.detail-meta-block.hidden { display: none; }
+.detail-meta-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #6c705f; }
+.detail-meta-value { font-size: 13px; letter-spacing: 1px; color: #23261e; height: 48px; 
+  display: flex; 
+  align-items: center;}
+.detail-formula { font-family: "Times New Roman", Georgia, serif; font-size: 16px; letter-spacing: 0.5px; }
+.detail-structure-wrap { width: 140px; height: 48px; display: flex; align-items: center; justify-content: flex-start; }
+#detail-structure-img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0.88; }
+.detail-divider { margin: 16px 0 8px; height: 1px; background: rgba(47,53,39,0.12); }
+.detail-data { display: flex; flex-direction: column; }
+.detail-row { display: grid; grid-template-columns: 90px 1fr; column-gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(47,53,39,0.12); }
+.detail-row-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #262a21; font-weight: 600; }
+.detail-intensity-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
+.detail-dots { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.detail-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(48,54,40,0.24); background: transparent; flex-shrink: 0; transition: background-color 0.8s cubic-bezier(0.22, 1, 0.36, 1), 
+              border-color 0.8s cubic-bezier(0.22, 1, 0.36, 1);}
+.detail-dot.active { background: var(--accent, #6dab4b); border-color: transparent; }
+.detail-score { font-size: 13px; color: #2b3126; white-space: nowrap; }
+.detail-diffusion-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; }
+.detail-spectral { position: relative; width: 174px; height: 24px; flex-shrink: 0; }
+.detail-spectral::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 999px; background: linear-gradient(90deg, rgba(var(--accent-rgb),0.38) 0%, rgba(var(--accent-rgb),0.18) 32%, rgba(var(--accent-rgb),0.08) 60%, rgba(var(--accent-rgb),0.02) 100%); }
+.detail-spectral-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 12px; border-radius: 999px; background: linear-gradient(90deg, rgba(var(--accent-rgb),0.72) 0%, rgba(var(--accent-rgb),0.28) 56%, rgba(var(--accent-rgb),0.03) 100%); }
+.detail-spectral-knob { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid rgba(var(--accent-rgb),0.54); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+.detail-diffusion-label { font-size: 13px; color: #2c3127; min-width: 40px; white-space: nowrap;}
+.detail-longevity-value { font-size: 13px; color: #2c3127; }
+.detail-section { margin-top: 16px; }
+.detail-section-title { font-size: 9px; letter-spacing: 2.6px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; color: var(--accent, #6c7d53); }
+.detail-tags { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.detail-tag { padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(var(--accent-rgb),0.34); background: rgba(255,255,255,0.34); color: #404539; font-size: 12px; line-height: 1; white-space: nowrap; transition: all 0.3s ease; cursor: pointer; }
+.detail-tag:hover { background-color: var(--accent, #6c7d53); border-color: var(--accent, #6c7d53); color: #ffffff; }
+.detail-description { margin-top: 6px; max-width: 520px; font-size: 13px; line-height: 1.6; color: #2f352c; padding-bottom: 24px; }
+.detail-side-vertical { position: absolute; right: 12px; top: 128px; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 3px; font-size: 10px; text-transform: uppercase; color: rgba(92,99,82,0.72); }
+.detail-side-vertical.bottom { top: auto; bottom: 54px; }
+</style>
+</head>
+<body>
+
+<div class="detail-modal" id="detail-modal">
+  <div class="detail-stage">
+    <img src="" id="detail-bg-img" class="detail-bg-img" alt="scent image">
+    <div class="detail-bg-gradient" id="detail-bg-gradient"></div>
+
+    <div class="detail-content-wrap">
+      <div class="detail-left">
+        <div class="detail-brand">OLFACTORY JOURNAL<br>CHEMICAL LIBRARY</div>
+        <button class="detail-back" onclick="closeDetail()" aria-label="back">←</button>
+        <div class="detail-index">
+          <div class="detail-index-number" id="detail-index-current">01</div>
+          <div class="detail-index-line" id="detail-index-line">
+             <div class="detail-index-dot" id="detail-index-dot"></div>
+          </div>
+          <div class="detail-index-number" id="detail-index-total">36</div>
+        </div>
+      </div>
+
+      <div class="detail-right" id="detail-right">
+        <button class="detail-close" onclick="closeDetail()" aria-label="close">×</button>
+
+        <div class="detail-note-kicker" id="detail-note-kicker">Top Note</div>
+        <div class="detail-title" id="detail-name">Cis-3-Hexenol<br>10% DPG</div>
+
+        <div class="detail-meta-grid">
+          <div class="detail-meta-block">
+            <div class="detail-meta-label">CAS</div>
+            <div class="detail-meta-value" id="detail-cas-val">928-96-1</div>
+          </div>
+
+          <div class="detail-meta-block" id="detail-formula-block">
+            <div class="detail-meta-label">Formula</div>
+            <div class="detail-meta-value detail-formula" id="detail-formula">C₆H₁₂O</div>
+          </div>
+
+          <div class="detail-meta-block hidden" id="detail-structure-block">
+            <div class="detail-meta-label">Structure</div>
+            <div class="detail-structure-wrap">
+              <img id="detail-structure-img" src="" alt="chemical structure">
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-divider"></div>
+
+        <div class="detail-data">
+          <div class="detail-row">
+            <div class="detail-row-label">Intensity</div>
+            <div class="detail-intensity-wrap">
+              <div class="detail-dots" id="detail-intensity-dots"></div>
+              <div class="detail-score" id="detail-intensity-score">4 / 10</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-row-label">Diffusion</div>
+            <div class="detail-diffusion-wrap">
+              <div class="detail-spectral">
+                <div class="detail-spectral-fill" id="detail-diffusion-fill"></div>
+                <div class="detail-spectral-knob" id="detail-diffusion-knob"></div>
+              </div>
+              <div class="detail-diffusion-label" id="detail-diffusion-label">Low</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-row-label">Longevity</div>
+            <div class="detail-longevity-value" id="detail-longevity">-</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Notes</div>
+          <div class="detail-tags" id="detail-tags"></div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Description</div>
+          <div class="detail-description" id="detail-description">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="journal" id="journal">
+  <div class="slide museum-slide active" id="slide-0">
+    <div class="random-aura" id="random-aura"></div>
+
+    <div class="hero-shell">
+      <div class="hero-left">
+        <div class="hero-title">Olfactory<br>Journal</div>
+        <div class="hero-subtitle">Explore the language of scent</div>
+        <div class="hero-body">A personal archive of aroma materials, molecules, and the stories they evoke.</div>
+        <a href="#inventory" class="hero-link">Explore Collection</a>
+      </div>
+
+      <div class="hero-right">
+        <div class="frame-wrap random-frame">
+          <div class="pantone-wrap" onclick="openRandomDetail()">
+            <div class="card-inner" id="card-0">
+              <div class="card-front random-front-face">
+                <div class="card-swatch"><span class="random-front-mark">?</span></div>
+                <div class="card-info">
+                  <div class="card-name">Random Scent</div>
+                  <div class="card-cas">CAS — ???</div>
+                </div>
+              </div>
+              <div class="card-back">
+                <div class="card-swatch"><img src="" class="swatch-img" id="random-img" alt="random scent"></div>
+                <div class="card-info">
+                  <div class="card-name" id="random-name">Loading...</div>
+                  <div class="card-cas" id="random-cas">CAS — 000-00-0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide video-slide next" id="slide-1">
+    <video class="video-layer" autoplay muted loop playsinline poster="linalool.png">
+      <source src="linalool-bg.mp4" type="video/mp4">
+    </video>
+    <div class="video-tint"></div><div class="video-grain"></div>
+    
+    <div class="hero-shell">
+      <div class="hero-left"></div> 
+      <div class="hero-right">
+        <div class="frame-wrap">
+          <div class="pantone-wrap is-static" onclick="openDetail('Linalool')">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-swatch"><img src="linalool.png" class="swatch-img" alt="Linalool"></div>
+                <div class="card-info">
+                  <div class="card-name">Linalool</div>
+                  <div class="card-cas">CAS — 78-70-6</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide video-slide next" id="slide-2">
+    <video class="video-layer" autoplay muted loop playsinline poster="cedarwood-superior-oil-virginia.png">
+      <source src="cedarwood-bg.mp4" type="video/mp4">
+    </video>
+    <div class="video-tint"></div><div class="video-grain"></div>
+    
+    <div class="hero-shell">
+      <div class="hero-left"></div>
+      <div class="hero-right">
+        <div class="frame-wrap">
+          <div class="pantone-wrap is-static" onclick="openDetail('Cedarwood “Superior” Oil, Virginia')">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-swatch"><img src="cedarwood-superior-oil-virginia.png" class="swatch-img" alt="Cedarwood"></div>
+                <div class="card-info">
+                  <div class="card-name">Cedarwood “Superior” Oil, Virginia</div>
+                  <div class="card-cas">CAS — 8000-27-9</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide video-slide next" id="slide-3">
+    <video class="video-layer" autoplay muted loop playsinline poster="d-limonene.png">
+      <source src="d-limonene-bg.mp4" type="video/mp4">
+    </video>
+    <div class="video-tint"></div><div class="video-grain"></div>
+    
+    <div class="hero-shell">
+      <div class="hero-left"></div>
+      <div class="hero-right">
+        <div class="frame-wrap">
+          <div class="pantone-wrap is-static" onclick="openDetail('D-Limonene')">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-swatch"><img src="d-limonene.png" class="swatch-img" alt="D-Limonene"></div>
+                <div class="card-info">
+                  <div class="card-name">D-Limonene</div>
+                  <div class="card-cas">CAS — 5989-27-5</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide video-slide next" id="slide-4">
+    <video class="video-layer" autoplay muted loop playsinline poster="vanillin-signature.png">
+      <source src="vanillin-bg.mp4" type="video/mp4">
+    </video>
+    <div class="video-tint"></div><div class="video-grain"></div>
+    
+    <div class="hero-shell">
+      <div class="hero-left"></div>
+      <div class="hero-right">
+        <div class="frame-wrap">
+          <div class="pantone-wrap is-static" onclick="openDetail('Vanillin “Signature”')">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-swatch"><img src="vanillin-signature.png" class="swatch-img" alt="Vanillin"></div>
+                <div class="card-info">
+                  <div class="card-name">Vanillin “Signature”</div>
+                  <div class="card-cas">CAS — 121-33-5</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dots" id="dots">
+    <div class="dot active" onclick="goTo(0)"></div>
+    <div class="dot" onclick="goTo(1)"></div>
+    <div class="dot" onclick="goTo(2)"></div>
+    <div class="dot" onclick="goTo(3)"></div>
+    <div class="dot" onclick="goTo(4)"></div>
+  </div>
+</div>
+
+<div class="inventory-section" id="inventory">
+  <div class="filter-bar">
+    <div class="filter-box" id="filter-btn">
+      <span id="active-filter">ALL</span>
+      <div class="filter-dropdown" id="filter-menu">
+        <div onclick="filterBy('ALL')">ALL</div>
+        <div onclick="filterBy('Floral')">Floral</div><div onclick="filterBy('Citrus')">Citrus</div><div onclick="filterBy('Green')">Green</div><div onclick="filterBy('Spicy')">Spicy</div><div onclick="filterBy('Powdery')">Powdery</div><div onclick="filterBy('Woody')">Woody</div><div onclick="filterBy('Amber')">Amber</div><div onclick="filterBy('Mossy')">Mossy</div><div onclick="filterBy('Musks')">Musks</div><div onclick="filterBy('Animalic')">Animalic</div>
+      </div>
+    </div>
+  </div>
+  <div class="scent-grid" id="scent-grid"></div>
+  <div class="pagination-area" id="page-nav"></div>
+</div>
+
+<script>
+const scentPool = [
+  { cas: '5989-27-5', name: 'D-Limonene', image: 'd-limonene.png', family: 'Citrus', note: 'top', intensity: '4', diffusion: 'low', longevity: '<1 day', notes: 'lemon / newly renovated interior smell / slightly sour-sweet / soft', desc: 'A bright lemon note with a slightly soft, sour-sweet edge. It also carries a fresh paint or newly renovated interior nuance.', color: '#E8C84A' },
+  { cas: '8016-38-4', name: 'Neroli Oil, Morocco', image: 'neroli-oil-morocco.png', family: 'Floral', note: 'top-heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'white Floral / lychee facet', desc: 'A radiant white floral with a juicy lychee-like facet. It gives the impression of a mature blossom, but still feels airy and luminous.', color: '#fdeee0' },
+  { cas: '7779-30-8', name: 'Methyl Ionone Alpha Extra', image: 'methyl-ionone-alpha-extra.png', family: 'Powdery', note: 'base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'dry woody / old book', desc: 'Dry, woody, and slightly dusty, with a clear old-book feeling. The whole impression is quiet, abstract, and a little nostalgic.', color: '#c175f8' },
+  { cas: '104-55-2', name: 'Cinnamaldehyde 10% DPG', image: 'cinnamaldehyde-10-dpg.png', family: 'Spicy', note: 'heart', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cinnamon / cardamom / spicy / warm / dry spice-like', desc: 'Warm cinnamon comes through immediately, followed by a cardamom-like spicy aroma. Rich, aromatic, and clearly warm in tone.', color: '#913b19' },
+  { cas: '928-96-1', name: 'Cis-3-Hexenol 10% DPG', image: 'cis-3-hexenol-10-dpg.png', family: 'Green', note: 'top', intensity: '4', diffusion: 'low', longevity: '<1 day', notes: 'grassy / metallic / damp / watery / sappy', desc: 'Very green and grassy, with a damp, rusty, crushed-leaf feel. The sappy character is strong, almost like the juice released from a freshly snapped stem.', color: '#6dab4b' },
+  { cas: '8022-96-6', name: 'Jasmine Absolute, Egypt 10% TEC', image: 'jasmine-absolute-egypt-10-tec.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'nectar-like / syrupy / vibrant', desc: 'Richly floral with a nectar-like sweetness and a syrupy texture. It feels vibrant and full.', color: '#e6aa53' },
+  { cas: '8006-81-3', name: 'Ylang-Ylang Extra Oil', image: 'ylang-ylang-extra-oil.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'medicinal (benzydamine spray) / wintergreen nuance / sharp', desc: 'Sharp and quite medicinal, with a wintergreen nuance in the background. It specifically reminds me of benzydamine spray.', color: '#f5c20c' },
+  { cas: '8000-46-2', name: 'Geranium Bourbon “Supreme” Oil', image: 'geranium-bourbon-supreme-oil.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'medium', longevity: '<2days', notes: 'nutty nuances / woody leafy / terpenic / minty', desc: 'Green and leafy with a woody, terpenic structure underneath. There is also a slightly nutty facet and a cool minty touch.', color: '#B8898F' },
+  { cas: '120-72-9', name: 'Indole', image: 'indole.png', family: 'Animalic', note: 'base', intensity: '9', diffusion: 'strong', longevity: '-', notes: 'fecal / white floral nuance / rich / thick', desc: 'Dense, rich, and unmistakably animalic, with a fecal tone at the center. Underneath that heaviness, a white floral nuance still comes through.', color: '#462c59' },
+  { cas: '5392-40-5', name: 'Citral', image: 'citral.png', family: 'Citrus', note: 'Top→Heart', intensity: '8', diffusion: 'medium', longevity: '<1 day', notes: 'lemon candy / slightly grassy / citronella-like / bright', desc: 'Bright and lemony, almost like lemon candy. A slightly grassy, citronella-like edge keeps it from feeling too simple.', color: '#ebf22e' },
+  { cas: '90028-68-5', name: 'Oakmoss Green Absolute 50% TEC', image: 'oakmoss-green-absolute-50-tec.png', family: 'Mossy', note: 'base', intensity: '8', diffusion: 'strong', longevity: '-', notes: 'mossy / iodine-like / somber', desc: 'Deeply mossy and dark, with an iodine-like nuance that gives it a serious, somber mood. The overall impression feels shaded, heavy, and introspective.', color: '#566812' },
+  { cas: '68648-33-9', name: 'Bergamot “Superior” Oil', image: 'bergamot-superior-oil.png', family: 'Citrus', note: 'top', intensity: '6', diffusion: 'low', longevity: '<2days', notes: 'Earl Grey tea / cooling / lavender-like / medicinal / orange peel', desc: 'Strongly reminiscent of Earl Grey tea, with a cool tone and a faint lavender-like impression. There is also a medicinal edge and a bitter orange-peel nuance.', color: '#d0cf52' },
+  { cas: '84238-29-9', name: 'Vetiver Bourbon “Signature” Oil', image: 'vetiver-bourbon-signature-oil.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'strong', longevity: '-', notes: 'smoky / dry woody / earthy / tea-like braising spice sachet', desc: 'Smoky, dry, woody, and earthy from the start. It also brings to mind a tea-like braising spice sachet, which gives it a grounded, textured quality.', color: '#6B5230' },
+  { cas: '121-33-5', name: 'Vanillin “Signature”', image: 'vanillin-signature.png', family: 'Amber', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'gourmand / creamy / sweet and warm / vanilla ice cream', desc: 'Sweet, creamy, and warmly gourmand, with a clear vanilla ice cream effect. Soft, comforting, and very easy to like.', color: '#C4813A' },
+  { cas: '0140-11-4', name: 'Benzyl Acetate “Signature”', image: 'benzyl-acetate-signature.png', family: 'Floral', note: 'top', intensity: '8', diffusion: 'strong', longevity: '<1day', notes: 'solvent-like / nail-polish-like / harsh / overripe banana', desc: 'Quite harsh on its own, with a solvent-like and nail-polish-like sharpness. Behind that, an overripe banana facet begins to show.', color: '#f0d7a5' },
+  { cas: '107-75-5', name: 'Hydroxycitronellal', image: 'hydroxycitronellal.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'green / soft / dewy floral green', desc: 'Soft, green, and dewy, with a lightly misted floral freshness. The whole impression feels gentle, watery, and smooth.', color: '#B8D4E8' },
+  { cas: '3681-71-8', name: 'Cis-3-Hexenyl Acetate', image: 'cis-3-hexenyl-acetate.png', family: 'Green', note: 'top', intensity: '7', diffusion: 'medium', longevity: '<2days', notes: 'green apple candy / fruity / candied / confectionery / sweet green', desc: 'Sweet green fruit with a very noticeable green apple gummy candy impression. The candied, confectionery side makes it feel playful and a little artificial in a fun way.', color: '#76cc79' },
+  { cas: '14901-07-6', name: 'Ionone Beta', image: 'ionone-beta.png', family: 'Powdery', note: 'base', intensity: '6', diffusion: 'medium', longevity: '-', notes: 'roasted tea / melon seeds / misty / dry', desc: 'Dry and slightly hazy, bringing roasted tea and melon seeds to mind. There is a misty quality to it that makes the whole impression feel blurred and atmospheric.', color: '#685882' },
+  { cas: '115-95-7', name: 'Linalyl Acetate', image: 'linalyl-acetate.png', family: 'Citrus', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'lavender / herbal / cooling', desc: 'Clean and familiar, with a lavender-like herbal tone and a cooling effect. Smooth, fresh, and well balanced.', color: '#C9C0E8' },
+  { cas: '24851-98-7', name: 'Hedione®', image: 'hedione.png', family: 'Floral', note: 'heart', intensity: '5', diffusion: 'medium', longevity: '-', notes: 'slight floral', desc: 'Only lightly floral on its own, almost to the point of feeling vague.', color: '#E8EDD4' },
+  { cas: '111879-80-2', name: 'Habanolide®', image: 'habanolide.png', family: 'Musks', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'sun-dried laundry / salty touch / papery', desc: 'A clean musk with the feel of sun-dried laundry. The faint salty touch and papery dryness make it feel airy, crisp, and understated.', color: '#f4eeea' },
+  { cas: '6790-58-5', name: 'Ambroxan® Crystals', image: 'ambroxan-crystals.png', family: 'Amber', note: 'base', intensity: '3', diffusion: 'strong', longevity: '-', notes: 'clean / musky', desc: 'Clean and musky, but much stronger in diffusion than in odor detail. It feels minimal and modern, yet surprisingly powerful in the air.', color: '#e6bd8c' },
+  { cas: '60-12-8', name: 'Phenyl ethyl alcohol', image: 'phenyl-ethyl-alcohol.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'rosy / bright / leafy / petal-like', desc: 'Rosy, bright, and fresh, with a leafy aspect that keeps it from becoming too sweet. The overall impression is very petal-like and open.', color: '#f5a6ab' },
+  { cas: '106-24-1', name: 'Geraniol', image: 'geraniol.png', family: 'Floral', note: 'heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sweet rosy / soft green / slightly citrusy', desc: 'Rosy and softly green, with a gentle sweetness and a slight citrus touch. Compared with citronellol, it feels rounder and smoother.', color: '#e0aa89' },
+  { cas: '106-22-9', name: 'Citronellol', image: 'citronellol.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'citronella-like (mosquito repellent) / green / sweet floral', desc: 'Green, sweet-floral, and clearly citronella / mosquito-repellent-like to my nose. That association is noticeable, but it still keeps a familiar floral softness in the drydown.', color: '#edc2b2' },
+  { cas: '106-25-2', name: 'Nerol', image: 'nerol.png', family: 'Floral', note: 'Top→Heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'sharp / metallic', desc: 'Sharper and more metallic in character, with a brighter citrus-floral edge. It feels more pointed and angular than soft.', color: '#F7D2C4' },
+  { cas: '78-70-6', name: 'Linalool', image: 'linalool.png', family: 'Floral', note: 'heart', intensity: '6', diffusion: 'medium', longevity: '<1 day', notes: 'floral-green / soft / muted / metallic', desc: 'Floral-green and relatively soft, with a muted, settled feeling. There is a metallic nuance present, though it is gentler and less sharp than eugenol.', color: '#ced3ed' },
+  { cas: '97-53-0', name: 'Eugenol', image: 'eugenol.png', family: 'Spicy', note: 'heart / base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'spicy / metallic / sharp', desc: 'Spicy, metallic, and sharp, with a strong aromatic presence. It feels more assertive and piercing than soft or rounded.', color: '#8B4513' },
+  { cas: '54464-57-2', name: 'Iso E Super', image: 'iso-e-super.png', family: 'Woody', note: 'base', intensity: '3', diffusion: 'low', longevity: '-', notes: 'bright transparent woody / polished / airy / medical aesthetic clinic smell', desc: 'A transparent woody note with a bright, polished, airy quality. It brings to mind the clean atmosphere of a department store or even a medical aesthetic clinic.', color: '#D8D2C8' },
+  { cas: '1222-05-5', name: 'Galaxolide', image: 'galaxolide.png', family: 'Musks', note: 'base', intensity: '2', diffusion: 'medium', longevity: '-', notes: 'faint / powdery / soapy', desc: 'Faint, powdery, and softly soapy. It stays quiet and clean rather than having a very distinctive odor profile.', color: '#fff3f0' },
+  { cas: '1506-02-1', name: 'Tonalide', image: 'tonalide.png', family: 'Musks', note: 'base', intensity: '1', diffusion: 'low', longevity: '<2days', notes: 'slightly woody / transparent / clear', desc: 'More subtle than Galaxolide, with only a slight woody nuance underneath. The overall effect feels transparent, clear, and very quiet.', color: '#faf4e8' },
+  { cas: '8000-27-9', name: 'Cedarwood “Superior” Oil, Virginia', image: 'cedarwood-superior-oil-virginia.png', family: 'Woody', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'dry woody / slightly almondy / slightly nutty / phytoncide-like', desc: 'Dry and woody, with a slightly almondy, faintly nutty side. It also gives a forest-air impression, close to the feeling of phytoncides.', color: '#A07850' },
+  { cas: '8014-09-3', name: 'Patchouli', image: 'patchouli.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'camphoraceous / medicinal / earthy / heavy / dense', desc: 'Heavy, earthy, and dense, with a camphoraceous medicinal aspect running through it. The profile feels dark, weighty, and grounded.', color: '#5b4a34' },
+  { cas: '8016-36-2', name: 'Frankincense Oil', image: 'frankincense-oil.png', family: 'Amber', note: 'Heart / Base', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cool / uplifting / aged tangerine peel / woody (hinoki-like)', desc: 'Cool and uplifting, with a woody tone that leans slightly hinoki-like. There is also an aged tangerine peel nuance that gives it a dry, refined lift.', color: '#C4A070' },
+  { cas: '28219-61-6', name: 'Bacdanol', image: 'bacdanol.png', family: 'Woody', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'sweet woody / lactonic / temple incense / milky', desc: 'Softly woody and slightly sweet, with a lactonic, milky aspect. The incense-like, temple-like character gives it warmth and quiet depth.', color: '#e3d3b8' },
+  { cas: '91-64-5', name: 'Coumarin', image: 'coumarin.png', family: 'Amber', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'almond-like / balsamic / warm / slightly sweet', desc: 'Warm, almond-like, and lightly balsamic, with a soft sweetness. The effect is smooth, cozy, and gently comforting.', color: '#e3b340' },
+  { cas: '105-87-3', name: 'Geranyl Acetate', image: 'geranyl-acetate.png', family: 'Floral', note: 'Top to Heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sharp / metallic / sweet floral', desc: 'Sharp and metallic at first, and it dissipates quite quickly. After a few minutes, it becomes rounder and more softly floral-sweet, almost like two stages in one material.', color: '#ccac8f' }
+];
+
+let current = 0; const total = 5; let isAnimating = false; let startX = null; let touchStartX = null; let currentRandomScent = null;
+const journal = document.getElementById('journal');
+
+function updateSlides() {
+  for (let i = 0; i < total; i++) {
+    const s = document.getElementById('slide-' + i);
+    if (!s) continue;
+    s.classList.remove('prev','active','next');
+    if (i < current) s.classList.add('prev');
+    else if (i === current) s.classList.add('active');
+    else s.classList.add('next');
+  }
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === current));
+}
+function navigate(dir) {
+  if (isAnimating) return;
+  const n = current + dir;
+  if (n < 0 || n >= total) return;
+  isAnimating = true;
+  current = n;
+  updateSlides();
+  setTimeout(() => { isAnimating = false; }, 700);
+}
+function goTo(idx) {
+  if (isAnimating || current === idx) return;
+  isAnimating = true;
+  current = idx;
+  updateSlides();
+  setTimeout(() => { isAnimating = false; }, 700);
+}
+
+function setMuseumAccent(hex) {
+  const slide0 = document.getElementById('slide-0');
+  const clean = (hex || '#d8c3a5').replace('#','');
+  const bigint = parseInt(clean, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  slide0.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+}
+
+function initRandomCard() {
+  const img = document.getElementById('random-img');
+  const cas = document.getElementById('random-cas');
+  const name = document.getElementById('random-name');
+  const slide0 = document.getElementById('slide-0');
+  const aura = document.getElementById('random-aura');
+
+  if (cas && name && img) {
+    const excludeList = ['Linalool', 'D-Limonene', 'Vanillin “Signature”', 'Cedarwood “Superior” Oil, Virginia'];
+    const safePool = scentPool.filter(item => !excludeList.includes(item.name));
+    currentRandomScent = safePool[Math.floor(Math.random() * safePool.length)];
+    img.src = currentRandomScent.image;
+    cas.innerText = 'CAS — ' + currentRandomScent.cas;
+    name.innerText = currentRandomScent.name;
+    setMuseumAccent(currentRandomScent.color);
+    if (aura) aura.style.setProperty('--aura-image', `url("${currentRandomScent.image}")`);
+  }
+
+  setTimeout(() => {
+    const card = document.getElementById('card-0');
+    if (card) card.classList.add('flipped');
+    if (slide0) slide0.classList.add('revealed');
+  }, 1100);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initRandomCard();
+  renderInventory();
+  updateSlides();
+});
+
+journal.addEventListener('mousedown', e => {
+  if (!e.target.closest('.dots') && !e.target.closest('.hero-link')) startX = e.clientX;
+});
+journal.addEventListener('mouseup', e => {
+  if (startX === null) return;
+  const diff = startX - e.clientX;
+  if (Math.abs(diff) > 70) navigate(diff > 0 ? 1 : -1);
+  startX = null;
+});
+journal.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+journal.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 70) navigate(diff > 0 ? 1 : -1);
+  touchStartX = null;
+}, { passive: true });
+window.addEventListener('keydown', e => {
+  if (document.getElementById('detail-modal').style.display === 'block') return;
+  if (e.key === 'ArrowRight') navigate(1);
+  if (e.key === 'ArrowLeft') navigate(-1);
+});
+
+document.querySelector('.hero-link')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('inventory').scrollIntoView({ behavior: 'smooth' });
+});
+
+let currentFilter = 'ALL'; let currentInvPage = 1; const perPage = 9;
+function renderInventory() {
+  const grid = document.getElementById('scent-grid'); const nav = document.getElementById('page-nav');
+  grid.innerHTML = '';
+  const filtered = currentFilter === 'ALL' ? scentPool : scentPool.filter(s => s.family === currentFilter);
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const startIdx = (currentInvPage - 1) * perPage;
+  const pageItems = filtered.slice(startIdx, startIdx + perPage);
+  pageItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'grid-item';
+    card.onclick = () => openDetail(item.name);
+    card.innerHTML = `<img src="${item.image}" alt="${item.name}"><div class="item-overlay"><span class="item-text">${item.name}</span></div>`;
+    grid.appendChild(card);
+  });
+  nav.innerHTML = '';
+  for(let i=1; i<=totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.className = `page-num ${i === currentInvPage ? 'active' : ''}`;
+    btn.onclick = () => { currentInvPage = i; renderInventory(); document.getElementById('inventory').scrollIntoView({ behavior: 'smooth' }); };
+    nav.appendChild(btn);
+  }
+}
+
+const filterBtn = document.getElementById('filter-btn');
+const filterMenu = document.getElementById('filter-menu');
+const filterOptions = Array.from(filterMenu.children);
+let focusedIndex = -1;
+function updateFocus() {
+  filterOptions.forEach((opt, idx) => {
+    if (idx === focusedIndex) { opt.classList.add('focused'); opt.scrollIntoView({ block: 'nearest' }); }
+    else opt.classList.remove('focused');
+  });
+}
+filterBtn.onclick = (e) => { e.stopPropagation(); const isOpen = filterMenu.style.display === 'flex'; filterMenu.style.display = isOpen ? 'none' : 'flex'; focusedIndex = -1; updateFocus(); };
+window.onclick = () => { filterMenu.style.display = 'none'; focusedIndex = -1; updateFocus(); };
+function filterBy(family) { currentFilter = family; currentInvPage = 1; document.getElementById('active-filter').innerText = family; renderInventory(); filterMenu.style.display = 'none'; focusedIndex = -1; }
+
+const FORMULA_MAP = {
+  'D-Limonene': 'C₁₀H₁₆','Cinnamaldehyde 10% DPG': 'C₉H₈O','Cis-3-Hexenol 10% DPG': 'C₆H₁₂O','Indole': 'C₈H₇N','Citral': 'C₁₀H₁₆O','Vanillin “Signature”': 'C₈H₈O₃','Benzyl Acetate “Signature”': 'C₉H₁₀O₂','Hydroxycitronellal': 'C₁₀H₂₀O₂','Cis-3-Hexenyl Acetate': 'C₈H₁₄O₂','Linalyl Acetate': 'C₁₂H₂₀O₂','Hedione®': 'C₁₃H₂₂O₃','Phenyl ethyl alcohol': 'C₈H₁₀O','Geraniol': 'C₁₀H₁₈O','Citronellol': 'C₁₀H₂₀O','Nerol': 'C₁₀H₁₈O','Linalool': 'C₁₀H₁₈O','Eugenol': 'C₁₀H₁₂O₂','Coumarin': 'C₉H₆O₂','Geranyl Acetate': 'C₁₂H₂₀O₂','Ambroxan® Crystals': 'C₁₆H₂₈O','Bacdanol': 'C₁₄H₂₄O','Habanolide®': 'C₁₅H₂₆O₂','Tonalide': 'C₁₈H₂₆O','Galaxolide': 'C₁₈H₂₆O','Ionone Beta': 'C₁₃H₂₀O','Iso E Super': 'C₁₆H₂₆O', 'Methyl Ionone Alpha Extra': 'C₁₄H₂₂O', 'Citronellal': 'C₁₀H₁₈O'
+};
+const STRUCTURE_IMG_MAP = {
+  'Ambroxan® Crystals': 'structure-ambroxan-crystals.png',
+  'Bacdanol': 'structure-bacdanol.png',
+  'Benzyl Acetate “Signature”': 'structure-benzyl-acetate-signature.png',
+  'Cinnamaldehyde 10% DPG': 'structure-cinnamaldehyde.png',
+  'Cis-3-Hexenol 10% DPG': 'structure-cis-3-hexenol.png',
+  'Cis-3-Hexenyl Acetate': 'structure-cis-3-hexenyl-acetate.png',
+  'Citral': 'structure-citral.png',
+  'Citronellol': 'structure-citronellol.png',
+  'Coumarin': 'structure-coumarin.png',
+  'D-Limonene': 'structure-d-limonene.png',
+  'Eugenol': 'structure-eugenol.png',
+  'Galaxolide': 'structure-galaxolide.png',
+  'Geraniol': 'structure-geraniol.png',
+  'Geranyl Acetate': 'structure-geranyl-acetate.png',
+  'Habanolide®': 'structure-habanolide.png',
+  'Hedione®': 'structure-hedione.png',
+  'Hydroxycitronellal': 'structure-hydroxycitronellal.png',
+  'Indole': 'structure-indole.png',
+  'Ionone Beta': 'structure-ionone-beta.png',
+  'Iso E Super': 'structure-iso-e-super.png',
+  'Linalool': 'structure-linalool.png',
+  'Linalyl Acetate': 'structure-linalyl-acetate.png',
+  'Methyl Ionone Alpha Extra': 'structure-methyl-ionone-alpha-extra.png',
+  'Nerol': 'structure-nerol.png',
+  'Phenyl ethyl alcohol': 'structure-phenyl-ethyl-alcohol.png',
+  'Tonalide': 'structure-tonalide.png',
+  'Vanillin “Signature”': 'structure-vanillin-signature.png'
+};
+function hexToRgbString(hex) { if (!hex) return '109,171,75'; const clean = hex.replace('#', ''); const bigint = parseInt(clean, 16); const r = (bigint >> 16) & 255; const g = (bigint >> 8) & 255; const b = bigint & 255; return `${r},${g},${b}`; }
+function noteToDisplay(note) { if (!note) return '-'; return note.replace(/top-heart/gi, 'Top-Heart').replace(/top to heart/gi, 'Top-Heart').replace(/heart \/ base/gi, 'Heart / Base').replace(/Top→Heart/g, 'Top-Heart').replace(/->/g, '→').trim(); }
+function buildTags(desc) { if (!desc) return []; return desc.split('/').map(tag => tag.replace(/\([^)]*\)/g, '').trim()).filter(Boolean).slice(0, 8); }
+function getDiffusionPosition(diffusion) { const map = { low: 0.22, medium: 0.50, strong: 0.78 }; return map[(diffusion || '').toLowerCase()] ?? 0.22; }
+function buildIntensityDots(value) {
+  const wrap = document.getElementById('detail-intensity-dots');
+  wrap.innerHTML = '';
+  const numeric = Number(value) || 0;
+  
+  for (let i = 1; i <= 10; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'detail-dot'; 
+    wrap.appendChild(dot);
+    
+    if (i <= numeric) {
+      setTimeout(() => {
+        dot.classList.add('active');
+      }, 400 + (i * 150)); 
+    }
+  }
+}
+function formatLongevity(v) { if (!v || v === '-') return '-'; const raw = v.toLowerCase().replace(/\s+/g, ''); if (raw === '<1day') return '<1 day'; if (raw === '<2days') return '<2 days'; return v; }
+function openDetail(scentName) {
+  const scent = scentPool.find(s => s.name === scentName); if (!scent) return;
+  const modal = document.getElementById('detail-modal'); const heroBg = document.getElementById('detail-bg-img'); const right = document.getElementById('detail-right');
+  const accent = scent.color || '#6dab4b'; const accentRgb = hexToRgbString(accent);
+  heroBg.src = scent.image; heroBg.alt = scent.name; right.style.setProperty('--accent', accent); right.style.setProperty('--accent-rgb', accentRgb);
+  document.getElementById('detail-note-kicker').innerText = noteToDisplay(scent.note);
+  if (scent.name.includes(' 10% DPG')) document.getElementById('detail-name').innerHTML = scent.name.replace(' 10% DPG', '<br>10% DPG');
+  else if (scent.name.includes(' 10% TEC')) document.getElementById('detail-name').innerHTML = scent.name.replace(' 10% TEC', '<br>10% TEC');
+  else document.getElementById('detail-name').innerHTML = scent.name;
+  document.getElementById('detail-cas-val').innerText = scent.cas || '-';
+  const formula = FORMULA_MAP[scent.name] || ''; const formulaBlock = document.getElementById('detail-formula-block'); const formulaEl = document.getElementById('detail-formula');
+  if (formula) { formulaBlock.classList.remove('hidden'); formulaEl.innerText = formula; } else { formulaBlock.classList.add('hidden'); formulaEl.innerText = ''; }
+  const structureImg = STRUCTURE_IMG_MAP[scent.name] || ''; const structureBlock = document.getElementById('detail-structure-block'); const structureImgEl = document.getElementById('detail-structure-img');
+  if (structureImg) { structureBlock.classList.remove('hidden'); structureImgEl.src = structureImg; structureImgEl.alt = `${scent.name} structure`; } else { structureBlock.classList.add('hidden'); structureImgEl.src = ''; structureImgEl.alt = ''; }
+  const intensity = Number(scent.intensity) || 0; buildIntensityDots(intensity); document.getElementById('detail-intensity-score').innerText = `${intensity} / 10`;
+  const diffusionPos = getDiffusionPosition(scent.diffusion); const track = document.querySelector('.detail-spectral'); const fill = document.getElementById('detail-diffusion-fill'); const knob = document.getElementById('detail-diffusion-knob');
+  const trackWidth = track.clientWidth || 220; const knobLeft = trackWidth * diffusionPos;
+  fill.style.width = `${Math.max(knobLeft, 42)}px`; fill.style.background = `linear-gradient(90deg, rgba(${accentRgb},0.72) 0%, rgba(${accentRgb},0.28) 56%, rgba(${accentRgb},0.03) 100%)`; knob.style.left = `${knobLeft}px`; knob.style.borderColor = `rgba(${accentRgb},0.54)`;
+  document.getElementById('detail-diffusion-label').innerText = scent.diffusion ? scent.diffusion.charAt(0).toUpperCase() + scent.diffusion.slice(1) : '-';
+  document.getElementById('detail-longevity').innerText = formatLongevity(scent.longevity);
+  const tags = buildTags(scent.notes); const tagsWrap = document.getElementById('detail-tags'); tagsWrap.innerHTML = ''; tags.forEach(tag => { const pill = document.createElement('span'); pill.className = 'detail-tag'; pill.innerText = tag; tagsWrap.appendChild(pill); });
+  document.getElementById('detail-description').innerText = scent.desc || '-';
+  const currentIndex = scentPool.findIndex(s => s.name === scent.name) + 1; document.getElementById('detail-index-current').innerText = String(currentIndex).padStart(2, '0'); document.getElementById('detail-index-total').innerText = String(scentPool.length).padStart(2, '0');
+  const progressPercent = scentPool.length > 1 ? ((currentIndex - 1) / (scentPool.length - 1)) * 100 : 0; document.getElementById('detail-index-dot').style.setProperty('--progress-pos', `${progressPercent}%`);
+  modal.style.display = 'block';
+}
+function openRandomDetail() { if (currentRandomScent) openDetail(currentRandomScent.name); }
+function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
+document.getElementById('detail-modal').addEventListener('click', function(e) { if (e.target === this) closeDetail(); });
+const indexLine = document.getElementById('detail-index-line'); let isDraggingIndex = false; let previewIndex = 0;
+function handleIndexInteraction(e) { const rect = indexLine.getBoundingClientRect(); let y = e.clientY || (e.touches && e.touches[0].clientY); if (y === undefined) return; let ratio = (y - rect.top) / rect.height; ratio = Math.max(0, Math.min(1, ratio)); previewIndex = Math.floor(ratio * scentPool.length); previewIndex = Math.min(previewIndex, scentPool.length - 1); const progressPercent = (previewIndex / (scentPool.length - 1)) * 100; document.getElementById('detail-index-dot').style.setProperty('--progress-pos', `${progressPercent}%`); document.getElementById('detail-index-current').innerText = String(previewIndex + 1).padStart(2, '0'); }
+indexLine.addEventListener('mousedown', (e) => { isDraggingIndex = true; handleIndexInteraction(e); });
+window.addEventListener('mousemove', (e) => { if (isDraggingIndex) handleIndexInteraction(e); });
+window.addEventListener('mouseup', () => { if (isDraggingIndex) { isDraggingIndex = false; openDetail(scentPool[previewIndex].name); } });
+indexLine.addEventListener('touchstart', (e) => { isDraggingIndex = true; handleIndexInteraction(e); }, {passive: false});
+window.addEventListener('touchmove', (e) => { if (isDraggingIndex) { e.preventDefault(); handleIndexInteraction(e); } }, {passive: false});
+window.addEventListener('touchend', () => { if (isDraggingIndex) { isDraggingIndex = false; openDetail(scentPool[previewIndex].name); } });
+</script>
+</body>
+</html>
