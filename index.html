@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Olfactory Journal & Inventory</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -334,10 +338,11 @@ body {
 .item-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: transparent; z-index: 2; }
 .item-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 500; text-transform: uppercase; letter-spacing: 1.2px; font-size: 13px; color: #fff; text-align: center; padding: 0 24px; line-height: 1.35; text-shadow: 0 2px 12px rgba(0,0,0,0.5); }
 .pagination-area { padding: 80px 0 100px; display: flex; justify-content: center; align-items: center; gap: 12px; }
-.page-num { width: 18px; height: 2px; background: rgba(0, 0, 0, 0.15); border: none; padding: 0; cursor: pointer; transition: width 0.4s cubic-bezier(.4,0,.2,1), background 0.4s ease; font-size: 0; color: transparent; }
-.page-num:hover { background: rgba(0, 0, 0, 0.4); }
-.page-num.active { width: 48px; background: #161616; }
+.page-num { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.4); background: rgba(0, 0, 0, 0.15); padding: 0; cursor: pointer; transition: transform 0.28s ease, background 0.28s ease, border-color 0.28s ease; font-size: 0; color: transparent; }
+.page-num:hover { transform: scale(1.15); background: rgba(0, 0, 0, 0.3); }
+.page-num.active { background: rgba(0, 0, 0, 0.95); border-color: rgba(0, 0, 0, 1); transform: scale(1.25); }
 
+/* 原本的詳細視窗樣式 */
 .detail-modal { position: fixed; inset: 0; z-index: 99999; display: none; background: rgba(20,20,20,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 16px; }
 .detail-stage { position: relative; width: 100%; height: 100%; border-radius: 24px; overflow: hidden; background: #efede3; box-shadow: 0 18px 60px rgba(0,0,0,0.12); }
 .detail-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: left center; z-index: 0; }
@@ -361,7 +366,7 @@ body {
   clear: right;}
 .detail-note-kicker::after { content: ''; display: block; width: 100%; height: 2px; margin-top: 4px; background: var(--accent, #89a06a); border-radius: 999px; margin-left: auto; 
   margin-right: 3px;}
-.detail-title { margin-top: 8px; font-family: "Times New Roman", Georgia, serif; font-size: clamp(24px, 2.5vw, 42px); line-height: 1.05; letter-spacing: -0.2px; font-weight: 600; color: #10140d; word-break: break-word; max-width: 480px; }
+.detail-title { margin-top: 8px; font-family: "Ibarra Real Nova", Georgia, serif; font-size: clamp(24px, 2.5vw, 42px); line-height: 1.05; letter-spacing: -0.2px; font-weight: 600; color: #10140d; word-break: break-word; max-width: 480px; }
 .detail-meta-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(3, minmax(0, max-content)); gap: 16px 24px; align-items: flex-start; }
 .detail-meta-block { display: flex; flex-direction: column; gap: 4px; }
 .detail-meta-block.hidden { display: none; }
@@ -381,25 +386,121 @@ body {
 .detail-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(48,54,40,0.24); background: transparent; flex-shrink: 0; transition: background-color 0.8s cubic-bezier(0.22, 1, 0.36, 1), 
               border-color 0.8s cubic-bezier(0.22, 1, 0.36, 1);}
 .detail-dot.active { background: var(--accent, #6dab4b); border-color: transparent; }
-.detail-score { font-size: 13px; color: #2b3126; white-space: nowrap; }
+.detail-score { font-family: "Ibarra Real Nova", Georgia, serif; font-size: 13px; color: #2b3126; white-space: nowrap; }
 .detail-diffusion-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; }
 .detail-spectral { position: relative; width: 174px; height: 24px; flex-shrink: 0; }
 .detail-spectral::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 999px; background: linear-gradient(90deg, rgba(var(--accent-rgb),0.38) 0%, rgba(var(--accent-rgb),0.18) 32%, rgba(var(--accent-rgb),0.08) 60%, rgba(var(--accent-rgb),0.02) 100%); }
 .detail-spectral-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 12px; border-radius: 999px; background: linear-gradient(90deg, rgba(var(--accent-rgb),0.72) 0%, rgba(var(--accent-rgb),0.28) 56%, rgba(var(--accent-rgb),0.03) 100%); }
 .detail-spectral-knob { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid rgba(var(--accent-rgb),0.54); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
-.detail-diffusion-label { font-size: 13px; color: #2c3127; min-width: 40px; white-space: nowrap;}
+.detail-diffusion-label { font-family: "Ibarra Real Nova", Georgia, serif;font-size: 13px; color: #2c3127; min-width: 40px; white-space: nowrap;}
 .detail-longevity-value { font-size: 13px; color: #2c3127; }
 .detail-section { margin-top: 16px; }
 .detail-section-title { font-size: 9px; letter-spacing: 2.6px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; color: var(--accent, #6c7d53); }
 .detail-tags { display: flex; flex-wrap: wrap; gap: 8px 10px; }
 .detail-tag { padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(var(--accent-rgb),0.34); background: rgba(255,255,255,0.34); color: #404539; font-size: 12px; line-height: 1; white-space: nowrap; transition: all 0.3s ease; cursor: pointer; }
 .detail-tag:hover { background-color: var(--accent, #6c7d53); border-color: var(--accent, #6c7d53); color: #ffffff; }
-.detail-description { margin-top: 6px; max-width: 520px; font-size: 13px; line-height: 1.6; color: #2f352c; padding-bottom: 24px; }
+.detail-description { margin-top: 6px; max-width: 520px; font-family: "Caveat", cursive; font-size: 15px; font-weight: 500; line-height: 1.6; color: #2f352c; padding-bottom: 24px; }
 .detail-side-vertical { position: absolute; right: 12px; top: 128px; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 3px; font-size: 10px; text-transform: uppercase; color: rgba(92,99,82,0.72); }
 .detail-side-vertical.bottom { top: auto; bottom: 54px; }
+
+/* ==========================================
+   全新加入：工具欄基礎定位與開關顯示 (不干擾原版面)
+   ========================================== */
+/* ==========================================
+   全新升級：雜誌感工具欄 (極細線條與毛玻璃)
+   ========================================== */
+.hj-nav-container {
+  position: fixed;
+  top: 42px;
+  right: 3vw;
+  z-index: 999999;
+}
+.hj-hamburger {
+  width: 32px;
+  height: 20px; /* 稍微加高一點點，讓點擊範圍更好 */
+  cursor: pointer;
+  z-index: 1000000;
+  position: relative;
+}
+
+.hj-hamburger span {
+  display: block;
+  height: 1.5px; 
+  width: 100%;
+  background-color: #f2edeb; 
+  position: absolute;
+  left: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 設定三條線的初始絕對位置 */
+.hj-hamburger span:nth-child(1) { top: 0px; }
+.hj-hamburger span:nth-child(2) { top: 9px; }
+.hj-hamburger span:nth-child(3) { top: 18px; }
+
+/* 點擊後變成完美的 X (精準對齊中心) */
+.hj-hamburger.active span:nth-child(1) { 
+  transform: translateY(9px) rotate(45deg); 
+}
+.hj-hamburger.active span:nth-child(2) { 
+  opacity: 0; 
+}
+.hj-hamburger.active span:nth-child(3) { 
+  transform: translateY(-9px) rotate(-45deg); 
+}
+.hj-nav-menu {
+  display: none;
+  position: absolute;
+  top: 35px;
+  right: 0px;
+  background: rgba(251, 250, 247, 0.85); /* 米白微透 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(36, 18, 13, 0.06);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  min-width: 180px;
+  padding: 12px 0;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.hj-nav-menu.show {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+.hj-nav-menu a {
+  padding: 14px 24px;
+  text-decoration: none;
+  color: #24120d;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  transition: background 0.3s ease, padding-left 0.3s ease;
+}
+.hj-nav-menu a:hover {
+  background: rgba(36, 18, 13, 0.03);
+  padding-left: 28px; /* 滑鼠移過去會有輕微內縮效果 */
+}
 </style>
 </head>
 <body>
+
+<div class="hj-nav-container">
+  <div class="hj-hamburger" id="hjHamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="hj-nav-menu" id="hjNavMenu">
+    <a href="index.html">Collection</a>
+    <a href="triangle.html">Triangle Test</a>
+    <a href="accord.html">Accord</a>
+    <a href="enfleurage.html">Enfleurage</a>
+  </div>
+</div>
 
 <div class="detail-modal" id="detail-modal">
   <div class="detail-stage">
@@ -415,7 +516,7 @@ body {
           <div class="detail-index-line" id="detail-index-line">
              <div class="detail-index-dot" id="detail-index-dot"></div>
           </div>
-          <div class="detail-index-number" id="detail-index-total">36</div>
+          <div class="detail-index-number" id="detail-index-total">63</div>
         </div>
       </div>
 
@@ -642,7 +743,20 @@ body {
       <span id="active-filter">ALL</span>
       <div class="filter-dropdown" id="filter-menu">
         <div onclick="filterBy('ALL')">ALL</div>
-        <div onclick="filterBy('Floral')">Floral</div><div onclick="filterBy('Citrus')">Citrus</div><div onclick="filterBy('Green')">Green</div><div onclick="filterBy('Spicy')">Spicy</div><div onclick="filterBy('Powdery')">Powdery</div><div onclick="filterBy('Woody')">Woody</div><div onclick="filterBy('Amber')">Amber</div><div onclick="filterBy('Mossy')">Mossy</div><div onclick="filterBy('Musks')">Musks</div><div onclick="filterBy('Animalic')">Animalic</div>
+        <div onclick="filterBy('Citrus')">Citrus</div>
+        <div onclick="filterBy('Green')">Green</div>
+        <div onclick="filterBy('Aquatic')">Aquatic</div>
+        <div onclick="filterBy('Aldehydic')">Aldehydic</div>
+        <div onclick="filterBy('Floral')">Floral</div>
+        <div onclick="filterBy('Fruity')">Fruity</div>
+        <div onclick="filterBy('Gourmand')">Gourmand</div>
+        <div onclick="filterBy('Spicy')">Spicy</div>
+        <div onclick="filterBy('Herbal')">Herbal</div>
+        <div onclick="filterBy('Powdery')">Powdery</div>
+        <div onclick="filterBy('Woody')">Woody</div>
+        <div onclick="filterBy('Ambery')">Ambery</div>
+        <div onclick="filterBy('Musky')">Musky</div>
+        <div onclick="filterBy('Animalic')">Animalic</div>
       </div>
     </div>
   </div>
@@ -653,42 +767,67 @@ body {
 <script>
 const scentPool = [
   { cas: '5989-27-5', name: 'D-Limonene', image: 'd-limonene.png', family: 'Citrus', note: 'top', intensity: '4', diffusion: 'low', longevity: '<1 day', notes: 'lemon / newly renovated interior smell / slightly sour-sweet / soft', desc: 'A bright lemon note with a slightly soft, sour-sweet edge. It also carries a fresh paint or newly renovated interior nuance.', color: '#E8C84A' },
-  { cas: '8016-38-4', name: 'Neroli Oil, Morocco', image: 'neroli-oil-morocco.png', family: 'Floral', note: 'top-heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'white Floral / lychee facet', desc: 'A radiant white floral with a juicy lychee-like facet. It gives the impression of a mature blossom, but still feels airy and luminous.', color: '#fdeee0' },
-  { cas: '7779-30-8', name: 'Methyl Ionone Alpha Extra', image: 'methyl-ionone-alpha-extra.png', family: 'Powdery', note: 'base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'dry woody / old book', desc: 'Dry, woody, and slightly dusty, with a clear old-book feeling. The whole impression is quiet, abstract, and a little nostalgic.', color: '#c175f8' },
-  { cas: '104-55-2', name: 'Cinnamaldehyde 10% DPG', image: 'cinnamaldehyde-10-dpg.png', family: 'Spicy', note: 'heart', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cinnamon / cardamom / spicy / warm / dry spice-like', desc: 'Warm cinnamon comes through immediately, followed by a cardamom-like spicy aroma. Rich, aromatic, and clearly warm in tone.', color: '#913b19' },
+  { cas: '68648-33-9', name: 'Bergamot “Superior” Oil', image: 'bergamot-superior-oil.png', family: 'Citrus', note: 'top', intensity: '6', diffusion: 'low', longevity: '<2days', notes: 'earl grey tea / cooling / lavender-like / medicinal / orange peel', desc: 'Strongly reminiscent of Earl Grey tea, with a cool tone and a faint lavender-like impression. There is also a medicinal edge and a bitter orange-peel nuance.', color: '#d0cf52' },
+  { cas: '5392-40-5', name: 'Citral', image: 'citral.png', family: 'Citrus', note: 'top-heart', intensity: '8', diffusion: 'medium', longevity: '<1 day', notes: 'lemon candy / slightly grassy / citronella-like / bright', desc: 'Bright and lemony, almost like lemon candy. A slightly grassy, citronella-like edge keeps it from feeling too simple.', color: '#ebf22e' },
+  { cas: '115-95-7', name: 'Linalyl Acetate', image: 'linalyl-acetate.png', family: 'Herbal', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'lavender / herbal / cooling', desc: 'Clean and familiar, with a lavender-like herbal tone and a cooling effect. Smooth, fresh, and well balanced.', color: '#C9C0E8' },
+  { cas: '8016-20-4', name: 'Grapefruit Oil, White', image: 'grapefruit-oil-white.png', family: 'Citrus', note: 'top', intensity: '5', diffusion: 'medium', longevity: '<1 day', notes: 'fleshy / watery / sweet / a little bitter', desc: 'Watery and fleshy, with a sweet grapefruit pulp feeling. A little bitter around the edge.', color: '#F0EAA8' },
   { cas: '928-96-1', name: 'Cis-3-Hexenol 10% DPG', image: 'cis-3-hexenol-10-dpg.png', family: 'Green', note: 'top', intensity: '4', diffusion: 'low', longevity: '<1 day', notes: 'grassy / metallic / damp / watery / sappy', desc: 'Very green and grassy, with a damp, rusty, crushed-leaf feel. The sappy character is strong, almost like the juice released from a freshly snapped stem.', color: '#6dab4b' },
+  { cas: '3681-71-8', name: 'Cis-3-Hexenyl Acetate', image: 'cis-3-hexenyl-acetate.png', family: 'Green', note: 'top', intensity: '7', diffusion: 'medium', longevity: '<2days', notes: 'green apple candy / fruity / candied / confectionery / sweet green', desc: 'Sweet green fruit with a very noticeable green apple gummy candy impression. The candied, confectionery side makes it feel playful and a little artificial in a fun way.', color: '#76cc79' },
+  { cas: '142-92-7', name: 'Hexyl Acetate', image: 'hexyl-acetate.png', family: 'Green', note: 'top', intensity: '5', diffusion: 'low', longevity: '-', notes: 'green apple jelly / sweet / fresh / green', desc: 'Fresh, sweet, and green-fruity. It feels clean and playful, more like candy or jelly than real fresh apple.', color: '#A8DC68' },
+  { cas: '112-31-2', name: 'Aldehyde C-10 1% DPG', image: 'aldehyde-c-10.png', family: 'Aldehydic', note: 'top', intensity: '8', diffusion: 'low', longevity: '<2 days', notes: 'citronella / sharp / harsh herbaceous (raw celery): stemmy', desc: 'Sharp, harsh, and citronella-like which reminds me of raw celery stems or crushed green stalks.', color: '#E07028' },
+  { cas: '122-78-1', name: 'Phenyl Acetaldehyde 50% PEA', image: 'phenyl-acetaldehyde-50-pea.png', family: 'Floral', note: 'top', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sap / grassy / almond (stronger) / floral', desc: 'It opens green and sappy, like plant juice or freshly cut stems, but there is also a floral smell underneath. A heavier almond-like facet sits in the background.', color: '#C4BC80' },
+  { cas: '28940-11-6', name: 'Calone® 1951', image: 'calone-1951.png', family: 'Aquatic', note: 'top-heart', intensity: '6', diffusion: 'low', longevity: '-', notes: 'watermelon / musty / marine / transparent / ozonic', desc: 'Watery, marine, ozonic, and transparent, with a watermelon rind feeling. Clean and sea-air-like, but with a slightly musty, damp edge.', color: '#48C0D0' },
+  { cas: '112-45-8', name: 'Aldehyde C-11 Undecylenic', image: 'aldehyde-c-11-undecylenic.png', family: 'Aldehydic', note: 'top', intensity: '8', diffusion: 'strong', longevity: '-', notes: 'harsh / waxy / floral sweet', desc: 'Harsh, waxy, and strongly aldehydic. At 5% dilution, a faint floral side appears, making it feel like a bridge between sharp aldehydic brightness and softer floral-waxy materials.', color: '#E8A030' },
+  { cas: '112-54-9', name: 'Aldehyde C-12 Lauric', image: 'aldehyde-c-12-lauric.png', family: 'Aldehydic', note: 'top-heart', intensity: '4', diffusion: 'low', longevity: '-', notes: 'green-floral / bright / fatty / paint / (drydown) musty', desc: 'Bright, green-floral, and fatty, with a paint-like sharpness. In the drydown, it becomes a bit musty and closed.', color: '#B8CCD8' },
+  { cas: '110-41-8', name: 'Aldehyde C-12 MNA', image: 'aldehyde-c-12-mna.png', family: 'Aldehydic', note: 'top-heart', intensity: '9', diffusion: 'strong', longevity: '-', notes: 'piercing / metallic / heavy / dense', desc: 'Very piercing, metallic, and strongly aldehydic, with a heavy waxy-fatty body. It feels dense and overpowering up close.', color: '#4A6070' },
+  { cas: '8016-38-4', name: 'Neroli Oil, Morocco', image: 'neroli-oil-morocco.png', family: 'Floral', note: 'top-heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'white floral / lychee facet', desc: 'A radiant white floral with a juicy lychee-like facet. It gives the impression of a mature blossom, but still feels airy and luminous.', color: '#fdeee0' },
   { cas: '8022-96-6', name: 'Jasmine Absolute, Egypt 10% TEC', image: 'jasmine-absolute-egypt-10-tec.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'nectar-like / syrupy / vibrant', desc: 'Richly floral with a nectar-like sweetness and a syrupy texture. It feels vibrant and full.', color: '#e6aa53' },
   { cas: '8006-81-3', name: 'Ylang-Ylang Extra Oil', image: 'ylang-ylang-extra-oil.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'medicinal (benzydamine spray) / wintergreen nuance / sharp', desc: 'Sharp and quite medicinal, with a wintergreen nuance in the background. It specifically reminds me of benzydamine spray.', color: '#f5c20c' },
   { cas: '8000-46-2', name: 'Geranium Bourbon “Supreme” Oil', image: 'geranium-bourbon-supreme-oil.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'medium', longevity: '<2days', notes: 'nutty nuances / woody leafy / terpenic / minty', desc: 'Green and leafy with a woody, terpenic structure underneath. There is also a slightly nutty facet and a cool minty touch.', color: '#B8898F' },
-  { cas: '120-72-9', name: 'Indole', image: 'indole.png', family: 'Animalic', note: 'base', intensity: '9', diffusion: 'strong', longevity: '-', notes: 'fecal / white floral nuance / rich / thick', desc: 'Dense, rich, and unmistakably animalic, with a fecal tone at the center. Underneath that heaviness, a white floral nuance still comes through.', color: '#462c59' },
-  { cas: '5392-40-5', name: 'Citral', image: 'citral.png', family: 'Citrus', note: 'Top→Heart', intensity: '8', diffusion: 'medium', longevity: '<1 day', notes: 'lemon candy / slightly grassy / citronella-like / bright', desc: 'Bright and lemony, almost like lemon candy. A slightly grassy, citronella-like edge keeps it from feeling too simple.', color: '#ebf22e' },
-  { cas: '90028-68-5', name: 'Oakmoss Green Absolute 50% TEC', image: 'oakmoss-green-absolute-50-tec.png', family: 'Mossy', note: 'base', intensity: '8', diffusion: 'strong', longevity: '-', notes: 'mossy / iodine-like / somber', desc: 'Deeply mossy and dark, with an iodine-like nuance that gives it a serious, somber mood. The overall impression feels shaded, heavy, and introspective.', color: '#566812' },
-  { cas: '68648-33-9', name: 'Bergamot “Superior” Oil', image: 'bergamot-superior-oil.png', family: 'Citrus', note: 'top', intensity: '6', diffusion: 'low', longevity: '<2days', notes: 'Earl Grey tea / cooling / lavender-like / medicinal / orange peel', desc: 'Strongly reminiscent of Earl Grey tea, with a cool tone and a faint lavender-like impression. There is also a medicinal edge and a bitter orange-peel nuance.', color: '#d0cf52' },
-  { cas: '84238-29-9', name: 'Vetiver Bourbon “Signature” Oil', image: 'vetiver-bourbon-signature-oil.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'strong', longevity: '-', notes: 'smoky / dry woody / earthy / tea-like braising spice sachet', desc: 'Smoky, dry, woody, and earthy from the start. It also brings to mind a tea-like braising spice sachet, which gives it a grounded, textured quality.', color: '#6B5230' },
-  { cas: '121-33-5', name: 'Vanillin “Signature”', image: 'vanillin-signature.png', family: 'Amber', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'gourmand / creamy / sweet and warm / vanilla ice cream', desc: 'Sweet, creamy, and warmly gourmand, with a clear vanilla ice cream effect. Soft, comforting, and very easy to like.', color: '#C4813A' },
   { cas: '0140-11-4', name: 'Benzyl Acetate “Signature”', image: 'benzyl-acetate-signature.png', family: 'Floral', note: 'top', intensity: '8', diffusion: 'strong', longevity: '<1day', notes: 'solvent-like / nail-polish-like / harsh / overripe banana', desc: 'Quite harsh on its own, with a solvent-like and nail-polish-like sharpness. Behind that, an overripe banana facet begins to show.', color: '#f0d7a5' },
   { cas: '107-75-5', name: 'Hydroxycitronellal', image: 'hydroxycitronellal.png', family: 'Floral', note: 'heart', intensity: '8', diffusion: 'low', longevity: '-', notes: 'green / soft / dewy floral green', desc: 'Soft, green, and dewy, with a lightly misted floral freshness. The whole impression feels gentle, watery, and smooth.', color: '#B8D4E8' },
-  { cas: '3681-71-8', name: 'Cis-3-Hexenyl Acetate', image: 'cis-3-hexenyl-acetate.png', family: 'Green', note: 'top', intensity: '7', diffusion: 'medium', longevity: '<2days', notes: 'green apple candy / fruity / candied / confectionery / sweet green', desc: 'Sweet green fruit with a very noticeable green apple gummy candy impression. The candied, confectionery side makes it feel playful and a little artificial in a fun way.', color: '#76cc79' },
-  { cas: '14901-07-6', name: 'Ionone Beta', image: 'ionone-beta.png', family: 'Powdery', note: 'base', intensity: '6', diffusion: 'medium', longevity: '-', notes: 'roasted tea / melon seeds / misty / dry', desc: 'Dry and slightly hazy, bringing roasted tea and melon seeds to mind. There is a misty quality to it that makes the whole impression feel blurred and atmospheric.', color: '#685882' },
-  { cas: '115-95-7', name: 'Linalyl Acetate', image: 'linalyl-acetate.png', family: 'Citrus', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'lavender / herbal / cooling', desc: 'Clean and familiar, with a lavender-like herbal tone and a cooling effect. Smooth, fresh, and well balanced.', color: '#C9C0E8' },
   { cas: '24851-98-7', name: 'Hedione®', image: 'hedione.png', family: 'Floral', note: 'heart', intensity: '5', diffusion: 'medium', longevity: '-', notes: 'slight floral', desc: 'Only lightly floral on its own, almost to the point of feeling vague.', color: '#E8EDD4' },
-  { cas: '111879-80-2', name: 'Habanolide®', image: 'habanolide.png', family: 'Musks', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'sun-dried laundry / salty touch / papery', desc: 'A clean musk with the feel of sun-dried laundry. The faint salty touch and papery dryness make it feel airy, crisp, and understated.', color: '#f4eeea' },
-  { cas: '6790-58-5', name: 'Ambroxan® Crystals', image: 'ambroxan-crystals.png', family: 'Amber', note: 'base', intensity: '3', diffusion: 'strong', longevity: '-', notes: 'clean / musky', desc: 'Clean and musky, but much stronger in diffusion than in odor detail. It feels minimal and modern, yet surprisingly powerful in the air.', color: '#e6bd8c' },
-  { cas: '60-12-8', name: 'Phenyl ethyl alcohol', image: 'phenyl-ethyl-alcohol.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'rosy / bright / leafy / petal-like', desc: 'Rosy, bright, and fresh, with a leafy aspect that keeps it from becoming too sweet. The overall impression is very petal-like and open.', color: '#f5a6ab' },
+  { cas: '60-12-8', name: 'Phenyl Ethyl Alcohol', image: 'phenyl-ethyl-alcohol.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'rosy / bright / leafy / petal-like', desc: 'Rosy, bright, and fresh, with a leafy aspect that keeps it from becoming too sweet. The overall impression is very petal-like and open.', color: '#f5a6ab' },
   { cas: '106-24-1', name: 'Geraniol', image: 'geraniol.png', family: 'Floral', note: 'heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sweet rosy / soft green / slightly citrusy', desc: 'Rosy and softly green, with a gentle sweetness and a slight citrus touch. Compared with citronellol, it feels rounder and smoother.', color: '#e0aa89' },
   { cas: '106-22-9', name: 'Citronellol', image: 'citronellol.png', family: 'Floral', note: 'heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'citronella-like (mosquito repellent) / green / sweet floral', desc: 'Green, sweet-floral, and clearly citronella / mosquito-repellent-like to my nose. That association is noticeable, but it still keeps a familiar floral softness in the drydown.', color: '#edc2b2' },
-  { cas: '106-25-2', name: 'Nerol', image: 'nerol.png', family: 'Floral', note: 'Top→Heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'sharp / metallic', desc: 'Sharper and more metallic in character, with a brighter citrus-floral edge. It feels more pointed and angular than soft.', color: '#F7D2C4' },
+  { cas: '106-25-2', name: 'Nerol', image: 'nerol.png', family: 'Floral', note: 'top-heart', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'sharp / metallic', desc: 'Sharper and more metallic in character, with a brighter citrus-floral edge. It feels more pointed and angular than soft.', color: '#F7D2C4' },
   { cas: '78-70-6', name: 'Linalool', image: 'linalool.png', family: 'Floral', note: 'heart', intensity: '6', diffusion: 'medium', longevity: '<1 day', notes: 'floral-green / soft / muted / metallic', desc: 'Floral-green and relatively soft, with a muted, settled feeling. There is a metallic nuance present, though it is gentler and less sharp than eugenol.', color: '#ced3ed' },
-  { cas: '97-53-0', name: 'Eugenol', image: 'eugenol.png', family: 'Spicy', note: 'heart / base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'spicy / metallic / sharp', desc: 'Spicy, metallic, and sharp, with a strong aromatic presence. It feels more assertive and piercing than soft or rounded.', color: '#8B4513' },
-  { cas: '54464-57-2', name: 'Iso E Super', image: 'iso-e-super.png', family: 'Woody', note: 'base', intensity: '3', diffusion: 'low', longevity: '-', notes: 'bright transparent woody / polished / airy / medical aesthetic clinic smell', desc: 'A transparent woody note with a bright, polished, airy quality. It brings to mind the clean atmosphere of a department store or even a medical aesthetic clinic.', color: '#D8D2C8' },
-  { cas: '1222-05-5', name: 'Galaxolide', image: 'galaxolide.png', family: 'Musks', note: 'base', intensity: '2', diffusion: 'medium', longevity: '-', notes: 'faint / powdery / soapy', desc: 'Faint, powdery, and softly soapy. It stays quiet and clean rather than having a very distinctive odor profile.', color: '#fff3f0' },
-  { cas: '1506-02-1', name: 'Tonalide', image: 'tonalide.png', family: 'Musks', note: 'base', intensity: '1', diffusion: 'low', longevity: '<2days', notes: 'slightly woody / transparent / clear', desc: 'More subtle than Galaxolide, with only a slight woody nuance underneath. The overall effect feels transparent, clear, and very quiet.', color: '#faf4e8' },
+  { cas: '105-87-3', name: 'Geranyl Acetate', image: 'geranyl-acetate.png', family: 'Floral', note: 'top-heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sharp / metallic / sweet floral', desc: 'Sharp and metallic at first, and it dissipates quite quickly. After a few minutes, it becomes rounder and more softly floral-sweet, almost like two stages in one material.', color: '#ccac8f' },
+  { cas: '103-95-7', name: 'Cyclamen Aldehyde', image: 'cyclamen-aldehyde.png', family: 'Floral', note: 'heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'dewy / aquatic floral / melon', desc: 'Soft, dewy, and watery-floral, with a melon-like freshness.', color: '#DCF0E0' },
+  { cas: '134-20-3', name: 'Methyl Anthranilate', image: 'methyl-anthranilate.png', family: 'Floral', note: 'top-heart', intensity: '7', diffusion: 'low', longevity: '-', notes: 'hospital disinfectant (medicinal) / almond / piercing / newly renovated interior', desc: 'Medicinal, piercing, and chemical-clean at first, close to hospital disinfectant. It has an almond-like sweetness and a sharp newly renovated interior smell. Much later, a faint grape-like fruitiness barely comes through, softening the harsh medicinal edge.', color: '#5E5A78' },
+  { cas: '198404-98-7', name: 'Javanol', image: 'javanol.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'strong', longevity: '-', notes: 'rosy / floral / sharp / cool / terpenic / soapy (clean) / drydown: white floral', desc: 'A creamy sandalwood-like smell with a clean, slightly rosy and soapy side. It opens cool and sharp, then dries down into soft woody-floral', color: '#C8C0B0' },
+  { cas: '104-67-6', name: 'Gamma Undecalactone', image: 'gamma-undecalactone.png', family: 'Fruity', note: 'top-heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'fruity:apricot / fatty / waxy green', desc: 'Fruity and fatty, with a soft apricot impression and a waxy-green side. It feels sweet, but not very juicy or bright.', color: '#F0C878' },
+  { cas: '705-86-2', name: 'Delta Decalactone', image: 'delta-decalactone.png', family: 'Fruity', note: 'heart-base', intensity: '4', diffusion: 'strong', longevity: '-', notes: 'dessert / coconut / buttery cookie', desc: 'Sweet, creamy, and dessert-like, with coconut and a buttery cookie-like richness. A soft peachy fruitiness comes through, but the main impression stays creamy and milky.', color: '#F4C0B0' },
+  { cas: '100-52-7', name: 'Benzaldehyde 50% DPG', image: 'benzaldehyde-50-dpg.png', family: 'Fruity', note: 'top', intensity: '5', diffusion: 'low', longevity: '-', notes: 'almond / marzipan / boozy cherry', desc: 'Strong almond and marzipan at first, with a cherry liqueur feeling.', color: '#B03038' },
+  { cas: '4940-11-8', name: 'Ethyl Maltol', image: 'ethyl-maltol.png', family: 'Gourmand', note: 'heart-base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'Caramel sweet / Toasted marshmallow', desc: 'Sweet and warm, like caramel and toasted marshmallow.', color: '#b35712' },
+  { cas: '121-33-5', name: 'Vanillin “Signature”', image: 'vanillin-signature.png', family: 'Gourmand', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'gourmand / creamy / sweet and warm / vanilla ice cream', desc: 'Sweet, creamy, and warmly gourmand, with a clear vanilla ice cream effect. Soft, comforting, and very easy to like.', color: '#C4813A' },
+  { cas: '91-64-5', name: 'Coumarin', image: 'coumarin.png', family: 'Gourmand', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'almond-like / balsamic / warm / slightly sweet', desc: 'Warm, almond-like, and lightly balsamic, with a soft sweetness. The effect is smooth, cozy, and gently comforting.', color: '#e3b340' },
+  { cas: '120-57-0', name: 'Heliotropin 20% DPG', image: 'heliotropin-20-dpg.png', family: 'Gourmand', note: 'heart-base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'soft almond / vanilla / sweet / creamy / powdery', desc: 'Soft almond and vanilla-like, with a sweet, creamy, powdery feeling.', color: '#EED0B8' },
+  { cas: '104-55-2', name: 'Cinnamaldehyde 10% DPG', image: 'cinnamaldehyde-10-dpg.png', family: 'Spicy', note: 'heart', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cinnamon / cardamom / spicy / warm / dry spice-like', desc: 'Warm cinnamon comes through immediately, followed by a cardamom-like spicy aroma. Rich, aromatic, and clearly warm in tone.', color: '#913b19' },
+  { cas: '97-53-0', name: 'Eugenol', image: 'eugenol.png', family: 'Spicy', note: 'heart-base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'spicy / metallic / sharp', desc: 'Spicy, metallic, and sharp, with a strong aromatic presence. It feels more assertive and piercing than soft or rounded.', color: '#8B4513' },
+  { cas: '97-54-1', name: 'Isoeugenol', image: 'isoeugenol.png', family: 'Spicy', note: 'heart-base', intensity: '8', diffusion: 'strong', longevity: '-', notes: 'sharp / metallic / nauseating', desc: 'Sharper, more metallic, and more nauseating than Eugenol at full concentration. It feels more piercing and uncomfortable, with a stronger metallic edge.', color: '#C07878' },
+  { cas: '8000-28-0', name: 'Lavender Oil, English', image: 'lavender-oil-english.png', family: 'Herbal', note: 'top-heart', intensity: '7', diffusion: 'strong', longevity: '-', notes: 'camphoraceous / cool / medicinal  / lemony-green / heavy herbaceous', desc: 'Cool and camphoraceous, with a clear medicinal herbal feeling. A lemony-green freshness comes through, but the overall impression stays dense, herbal, and camphor-like.', color: '#8686B0' },
+  { cas: '7779-30-8', name: 'Methyl Ionone Alpha Extra', image: 'methyl-ionone-alpha-extra.png', family: 'Powdery', note: 'base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'dry woody / old book', desc: 'Dry, woody, and slightly dusty, with a clear old-book feeling. The whole impression is quiet, abstract, and a little nostalgic.', color: '#c175f8' },
+  { cas: '14901-07-6', name: 'Ionone Beta', image: 'ionone-beta.png', family: 'Powdery', note: 'base', intensity: '6', diffusion: 'medium', longevity: '-', notes: 'roasted tea / melon seeds / misty / dry', desc: 'Dry and slightly hazy, bringing roasted tea and melon seeds to mind. There is a misty quality to it that makes the whole impression feel blurred and atmospheric.', color: '#685882' },
+  { cas: '127-41-3', name: 'Ionone Alpha', image: 'ionone-alpha.png', family: 'Powdery', note: 'heart', intensity: '4', diffusion: 'low', longevity: '-', notes: 'berry / woody / dry Woods / nutty', desc: 'Berry-like and woody, with a dry woods feeling and a soft nutty edge. The whole impression feels muted, dry, and slightly dusty.', color: '#8B5058' },
   { cas: '8000-27-9', name: 'Cedarwood “Superior” Oil, Virginia', image: 'cedarwood-superior-oil-virginia.png', family: 'Woody', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'dry woody / slightly almondy / slightly nutty / phytoncide-like', desc: 'Dry and woody, with a slightly almondy, faintly nutty side. It also gives a forest-air impression, close to the feeling of phytoncides.', color: '#A07850' },
+  { cas: '84238-29-9', name: 'Vetiver Bourbon “Signature” Oil', image: 'vetiver-bourbon-signature-oil.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'strong', longevity: '-', notes: 'smoky / dry woody / earthy / tea-like braising spice sachet', desc: 'Smoky, dry, woody, and earthy from the start. It also brings to mind a tea-like braising spice sachet, which gives it a grounded, textured quality.', color: '#6B5230' },
   { cas: '8014-09-3', name: 'Patchouli', image: 'patchouli.png', family: 'Woody', note: 'base', intensity: '7', diffusion: 'medium', longevity: '-', notes: 'camphoraceous / medicinal / earthy / heavy / dense', desc: 'Heavy, earthy, and dense, with a camphoraceous medicinal aspect running through it. The profile feels dark, weighty, and grounded.', color: '#5b4a34' },
-  { cas: '8016-36-2', name: 'Frankincense Oil', image: 'frankincense-oil.png', family: 'Amber', note: 'Heart / Base', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cool / uplifting / aged tangerine peel / woody (hinoki-like)', desc: 'Cool and uplifting, with a woody tone that leans slightly hinoki-like. There is also an aged tangerine peel nuance that gives it a dry, refined lift.', color: '#C4A070' },
+  { cas: '54464-57-2', name: 'Iso E Super', image: 'iso-e-super.png', family: 'Woody', note: 'base', intensity: '3', diffusion: 'low', longevity: '-', notes: 'bright transparent woody / polished / airy / medical aesthetic clinic smell', desc: 'A transparent woody note with a bright, polished, airy quality. It brings to mind the clean atmosphere of a department store or even a medical aesthetic clinic.', color: '#D8D2C8' },
   { cas: '28219-61-6', name: 'Bacdanol', image: 'bacdanol.png', family: 'Woody', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'sweet woody / lactonic / temple incense / milky', desc: 'Softly woody and slightly sweet, with a lactonic, milky aspect. The incense-like, temple-like character gives it warmth and quiet depth.', color: '#e3d3b8' },
-  { cas: '91-64-5', name: 'Coumarin', image: 'coumarin.png', family: 'Amber', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'almond-like / balsamic / warm / slightly sweet', desc: 'Warm, almond-like, and lightly balsamic, with a soft sweetness. The effect is smooth, cozy, and gently comforting.', color: '#e3b340' },
-  { cas: '105-87-3', name: 'Geranyl Acetate', image: 'geranyl-acetate.png', family: 'Floral', note: 'Top to Heart', intensity: '5', diffusion: 'low', longevity: '-', notes: 'sharp / metallic / sweet floral', desc: 'Sharp and metallic at first, and it dissipates quite quickly. After a few minutes, it becomes rounder and more softly floral-sweet, almost like two stages in one material.', color: '#ccac8f' }
+  { cas: '90028-68-5', name: 'Oakmoss Green Absolute 50% TEC', image: 'oakmoss-green-absolute-50-tec.png', family: 'Woody', note: 'base', intensity: '8', diffusion: 'strong', longevity: '-', notes: 'mossy / iodine-like / somber', desc: 'Deeply mossy and dark, with an iodine-like nuance that gives it a serious, somber mood. The overall impression feels shaded, heavy, and introspective.', color: '#566812' },
+  { cas: '4707-47-5', name: 'Veramoss 10% DPG', image: 'veramoss.png', family: 'Woody', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'mossy / light / soil-like', desc: 'Damp and quietly mossy, without the heavy iodine weight of oakmoss. There is a mild sourness to it, like fallen leaves left on wet ground after rain, with a faint trace of soil carried on a shoe sole. Lighter and more breathable than oakmoss.', color: '#6e8a50' },
+  { name: 'Sandalwood Imperial', image: 'sandalwood-imperial.png', family: 'Woody', note: 'base', intensity: '6', diffusion: 'low', longevity: '-', notes: 'roasted sweet potato and roasted chestnut (Creamy) / sweet / incense / dry / woody', desc: 'Warm, creamy, and woody, with a roasted sweet potato and roasted chestnut feeling. Also,the base stays dry and woody', color: '#DCC8A0' },
+  { cas: '33704-61-9', name: 'Cashmeran®', image: 'cashmeran.png', family: 'Woody', note: 'base', intensity: '6', diffusion: 'medium', longevity: '-', notes: 'musty woody / faint musk / earthy', desc: 'Woody, musty, and slightly musky, with a faint herbal-medicinal nuance. It feels like an old wooden wardrobe where clothes have been stored for too long, with more stale mustiness.', color: '#C0B0A4' },
+  { cas: '8016-36-2', name: 'Frankincense Oil', image: 'frankincense-oil.png', family: 'Ambery', note: 'heart-base', intensity: '8', diffusion: 'medium', longevity: '-', notes: 'cool / uplifting / aged tangerine peel / woody (hinoki-like)', desc: 'Cool and uplifting, with a woody tone that leans slightly hinoki-like. There is also an aged tangerine peel nuance that gives it a dry, refined lift.', color: '#C4A070' },
+  { cas: '8016-26-0', name: 'Labdanum Resinoid', image: 'labdanum-resinoid.png', family: 'Ambery', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'longan / red date / smoky / chinese herbal medicine / leathery / antique woody ', desc: 'Dark, sticky, and resinous, with dried longan and red date at first. It also has a smoky Chinese medicine feeling, mixed with leather and antique wood. The drydown becomes a little tart.', color: '#604018' },
+  { cas: '118-58-1', name: 'Benzyl Salicylate', image: 'benzyl-salicylate.png', family: 'Floral', note: 'base', intensity: '3', diffusion: 'low', longevity: '-', notes: 'puffed rice / slight burnt smell from a hair dryer / drydown: nutty', desc: 'Rice-like and warm, with a toasted puffed-rice sweetness and a faint scorched edge. It feels heated and slightly burnt, but not smoky.', color: '#EDD888' },
+  { cas: '6790-58-5', name: 'Ambroxan® Crystals', image: 'ambroxan-crystals.png', family: 'Ambery', note: 'base', intensity: '3', diffusion: 'strong', longevity: '-', notes: 'clean / musky', desc: 'Clean and musky, but much stronger in diffusion than in odor detail. It feels minimal and modern, yet surprisingly powerful in the air.', color: '#e6bd8c' },
+  { cas: '105-95-3', name: 'Ethylene Brassylate', image: 'ethylene-brassylate.png', family: 'Musky', note: 'base', intensity: '5', diffusion: 'low', longevity: '-', notes: 'musk / clean / powdery / soft warm / peach(just a little)', desc: 'Clean, soft, and powdery musk, with a warm skin-like feeling. There is a very faint peachy nuance in the background.', color: '#E8DCC8' },
+  { cas: '111879-80-2', name: 'Habanolide®', image: 'habanolide.png', family: 'Musky', note: 'base', intensity: '4', diffusion: 'low', longevity: '-', notes: 'sun-dried laundry / salty touch / papery', desc: 'A clean musk with the feel of sun-dried laundry. The faint salty touch and papery dryness make it feel airy, crisp, and understated.', color: '#f4eeea' },
+  { cas: '1222-05-5', name: 'Galaxolide', image: 'galaxolide.png', family: 'Musky', note: 'base', intensity: '2', diffusion: 'medium', longevity: '-', notes: 'faint / powdery / soapy', desc: 'Faint, powdery, and softly soapy. It stays quiet and clean rather than having a very distinctive odor profile.', color: '#fff3f0' },
+  { cas: '1506-02-1', name: 'Tonalide', image: 'tonalide.png', family: 'Musky', note: 'base', intensity: '1', diffusion: 'low', longevity: '<2days', notes: 'slightly woody / transparent / clear', desc: 'More subtle than Galaxolide, with only a slight woody nuance underneath. The overall effect feels transparent, clear, and very quiet.', color: '#faf4e8' },
+  { cas: '120-72-9', name: 'Indole', image: 'indole.png', family: 'Animalic', note: 'base', intensity: '9', diffusion: 'strong', longevity: '-', notes: 'fecal / white floral nuance / rich / thick', desc: 'Dense, rich, and unmistakably animalic, with a fecal tone at the center. Underneath that heaviness, a white floral nuance still comes through.', color: '#462c59' }
 ];
 
 let current = 0; const total = 5; let isAnimating = false; let startX = null; let touchStartX = null; let currentRandomScent = null;
@@ -781,8 +920,31 @@ journal.addEventListener('touchend', e => {
 }, { passive: true });
 window.addEventListener('keydown', e => {
   if (document.getElementById('detail-modal').style.display === 'block') return;
-  if (e.key === 'ArrowRight') navigate(1);
-  if (e.key === 'ArrowLeft') navigate(-1);
+  
+  const inventory = document.getElementById('inventory');
+  const rect = inventory.getBoundingClientRect();
+  const isInventoryInView = rect.top < window.innerHeight * 0.6; 
+
+  if (isInventoryInView) {
+    const filtered = currentFilter === 'ALL' ? scentPool : scentPool.filter(s => s.family === currentFilter);
+    const totalPages = Math.ceil(filtered.length / perPage);
+    let changed = false;
+    if (e.key === 'ArrowRight' && currentInvPage < totalPages) {
+      currentInvPage++;
+      changed = true;
+    }
+    if (e.key === 'ArrowLeft' && currentInvPage > 1) {
+      currentInvPage--;
+      changed = true;
+    }
+    if (changed) {
+      renderInventory();
+      document.getElementById('inventory').scrollIntoView({ behavior: 'smooth' });
+    }
+  } else {
+    if (e.key === 'ArrowRight') navigate(1);
+    if (e.key === 'ArrowLeft') navigate(-1);
+  }
 });
 
 document.querySelector('.hero-link')?.addEventListener('click', (e) => {
@@ -829,7 +991,8 @@ window.onclick = () => { filterMenu.style.display = 'none'; focusedIndex = -1; u
 function filterBy(family) { currentFilter = family; currentInvPage = 1; document.getElementById('active-filter').innerText = family; renderInventory(); filterMenu.style.display = 'none'; focusedIndex = -1; }
 
 const FORMULA_MAP = {
-  'D-Limonene': 'C₁₀H₁₆','Cinnamaldehyde 10% DPG': 'C₉H₈O','Cis-3-Hexenol 10% DPG': 'C₆H₁₂O','Indole': 'C₈H₇N','Citral': 'C₁₀H₁₆O','Vanillin “Signature”': 'C₈H₈O₃','Benzyl Acetate “Signature”': 'C₉H₁₀O₂','Hydroxycitronellal': 'C₁₀H₂₀O₂','Cis-3-Hexenyl Acetate': 'C₈H₁₄O₂','Linalyl Acetate': 'C₁₂H₂₀O₂','Hedione®': 'C₁₃H₂₂O₃','Phenyl ethyl alcohol': 'C₈H₁₀O','Geraniol': 'C₁₀H₁₈O','Citronellol': 'C₁₀H₂₀O','Nerol': 'C₁₀H₁₈O','Linalool': 'C₁₀H₁₈O','Eugenol': 'C₁₀H₁₂O₂','Coumarin': 'C₉H₆O₂','Geranyl Acetate': 'C₁₂H₂₀O₂','Ambroxan® Crystals': 'C₁₆H₂₈O','Bacdanol': 'C₁₄H₂₄O','Habanolide®': 'C₁₅H₂₆O₂','Tonalide': 'C₁₈H₂₆O','Galaxolide': 'C₁₈H₂₆O','Ionone Beta': 'C₁₃H₂₀O','Iso E Super': 'C₁₆H₂₆O', 'Methyl Ionone Alpha Extra': 'C₁₄H₂₂O', 'Citronellal': 'C₁₀H₁₈O'
+  'D-Limonene': 'C₁₀H₁₆','Cinnamaldehyde 10% DPG': 'C₉H₈O','Cis-3-Hexenol 10% DPG': 'C₆H₁₂O','Indole': 'C₈H₇N','Citral': 'C₁₀H₁₆O','Vanillin “Signature”': 'C₈H₈O₃','Benzyl Acetate “Signature”': 'C₉H₁₀O₂','Hydroxycitronellal': 'C₁₀H₂₀O₂','Cis-3-Hexenyl Acetate': 'C₈H₁₄O₂','Linalyl Acetate': 'C₁₂H₂₀O₂','Hedione®': 'C₁₃H₂₂O₃','Phenyl Ethyl Alcohol': 'C₈H₁₀O','Geraniol': 'C₁₀H₁₈O','Citronellol': 'C₁₀H₂₀O','Nerol': 'C₁₀H₁₈O','Linalool': 'C₁₀H₁₈O','Eugenol': 'C₁₀H₁₂O₂','Coumarin': 'C₉H₆O₂','Geranyl Acetate': 'C₁₂H₂₀O₂','Ambroxan® Crystals': 'C₁₆H₂₈O','Bacdanol': 'C₁₄H₂₄O','Habanolide®': 'C₁₅H₂₆O₂','Tonalide': 'C₁₈H₂₆O','Galaxolide': 'C₁₈H₂₆O','Ionone Beta': 'C₁₃H₂₀O','Iso E Super': 'C₁₆H₂₆O', 'Methyl Ionone Alpha Extra': 'C₁₄H₂₂O', 'Citronellal': 'C₁₀H₁₈O',
+  'Javanol': 'C₁₅H₂₆O', 'Hexyl Acetate': 'C₈H₁₆O₂', 'Ethylene Brassylate': 'C₁₅H₂₆O₄', 'Benzaldehyde 50% DPG': 'C₇H₆O', 'Ethyl Maltol': 'C₇H₈O₃', 'Cyclamen Aldehyde': 'C₁₃H₁₈O', 'Isoeugenol': 'C₁₀H₁₂O₂', 'Veramoss 10% DPG': 'C₁₀H₁₂O₄', 'Methyl Anthranilate': 'C₈H₉NO₂', 'Phenyl Acetaldehyde 50% PEA': 'C₈H₈O', 'Delta Decalactone': 'C₁₀H₁₈O₂', 'Heliotropin 20% DPG': 'C₈H₆O₃', 'Ionone Alpha': 'C₁₃H₂₀O', 'Gamma Undecalactone': 'C₁₁H₂₀O₂', 'Benzyl Salicylate': 'C₁₄H₁₂O₃', 'Cashmeran®': 'C₁₄H₂₂O', 'Aldehyde C-12 Lauric': 'C₁₂H₂₄O', 'Aldehyde C-12 MNA': 'C₁₂H₂₄O', 'Aldehyde C-10 1% DPG': 'C₁₀H₂₀O', 'Aldehyde C-11 Undecylenic': 'C₁₁H₂₀O', 'Calone® 1951': 'C₁₀H₁₀O₃'
 };
 const STRUCTURE_IMG_MAP = {
   'Ambroxan® Crystals': 'structure-ambroxan-crystals.png',
@@ -856,14 +1019,35 @@ const STRUCTURE_IMG_MAP = {
   'Linalyl Acetate': 'structure-linalyl-acetate.png',
   'Methyl Ionone Alpha Extra': 'structure-methyl-ionone-alpha-extra.png',
   'Nerol': 'structure-nerol.png',
-  'Phenyl ethyl alcohol': 'structure-phenyl-ethyl-alcohol.png',
+  'Phenyl Ethyl Alcohol': 'structure-phenyl-ethyl-alcohol.png',
   'Tonalide': 'structure-tonalide.png',
-  'Vanillin “Signature”': 'structure-vanillin-signature.png'
+  'Vanillin “Signature”': 'structure-vanillin-signature.png',
+  'Javanol': 'structure-javanol.png',
+  'Hexyl Acetate': 'structure-hexyl-acetate.png',
+  'Ethylene Brassylate': 'structure-ethylene-brassylate.png',
+  'Benzaldehyde 50% DPG': 'structure-benzaldehyde.png',
+  'Ethyl Maltol': 'structure-ethyl-maltol.png',
+  'Cyclamen Aldehyde': 'structure-cyclamen-aldehyde.png',
+  'Isoeugenol': 'structure-isoeugenol.png',
+  'Veramoss 10% DPG': 'structure-veramoss.png',
+  'Methyl Anthranilate': 'structure-methyl-anthranilate.png',
+  'Phenyl Acetaldehyde 50% PEA': 'structure-phenyl-acetaldehyde.png',
+  'Delta Decalactone': 'structure-delta-decalactone.png',
+  'Heliotropin 20% DPG': 'structure-heliotropin.png',
+  'Ionone Alpha': 'structure-ionone-alpha.png',
+  'Gamma Undecalactone': 'structure-gamma-undecalactone.png',
+  'Benzyl Salicylate': 'structure-benzyl-salicylate.png',
+  'Cashmeran®': 'structure-cashmeran.png',
+  'Aldehyde C-12 Lauric': 'structure-aldehyde-c-12-lauric.png',
+  'Aldehyde C-12 MNA': 'structure-aldehyde-c-12-mna.png',
+  'Aldehyde C-10 1% DPG': 'structure-aldehyde-c-10.png',
+  'Aldehyde C-11 Undecylenic': 'structure-aldehyde-c-11-undecylenic.png',
+  'Calone® 1951': 'structure-calone-1951.png'
 };
 function hexToRgbString(hex) { if (!hex) return '109,171,75'; const clean = hex.replace('#', ''); const bigint = parseInt(clean, 16); const r = (bigint >> 16) & 255; const g = (bigint >> 8) & 255; const b = bigint & 255; return `${r},${g},${b}`; }
-function noteToDisplay(note) { if (!note) return '-'; return note.replace(/top-heart/gi, 'Top-Heart').replace(/top to heart/gi, 'Top-Heart').replace(/heart \/ base/gi, 'Heart / Base').replace(/Top→Heart/g, 'Top-Heart').replace(/->/g, '→').trim(); }
-function buildTags(desc) { if (!desc) return []; return desc.split('/').map(tag => tag.replace(/\([^)]*\)/g, '').trim()).filter(Boolean).slice(0, 8); }
-function getDiffusionPosition(diffusion) { const map = { low: 0.22, medium: 0.50, strong: 0.78 }; return map[(diffusion || '').toLowerCase()] ?? 0.22; }
+function noteToDisplay(note) { if (!note || note === '-') return '-'; return note.replace(/top-heart/gi, 'Top-Heart').replace(/top to heart/gi, 'Top-Heart').replace(/heart \/ base/gi, 'Heart / Base').replace(/herat to base/gi, 'Heart / Base').replace(/Top→Heart/g, 'Top-Heart').replace(/->/g, '→').trim(); }
+function buildTags(desc) { if (!desc || desc === '-') return []; return desc.split('/').map(tag => tag.replace(/\([^)]*\)/g, '').trim()).filter(Boolean).slice(0, 8); }
+function getDiffusionPosition(diffusion) { const map = { low: 0.22, medium: 0.50, high: 0.78, strong: 0.78 }; return map[(diffusion || '').toLowerCase()] ?? 0.22; }
 function buildIntensityDots(value) {
   const wrap = document.getElementById('detail-intensity-dots');
   wrap.innerHTML = '';
@@ -888,9 +1072,7 @@ function openDetail(scentName) {
   const accent = scent.color || '#6dab4b'; const accentRgb = hexToRgbString(accent);
   heroBg.src = scent.image; heroBg.alt = scent.name; right.style.setProperty('--accent', accent); right.style.setProperty('--accent-rgb', accentRgb);
   document.getElementById('detail-note-kicker').innerText = noteToDisplay(scent.note);
-  if (scent.name.includes(' 10% DPG')) document.getElementById('detail-name').innerHTML = scent.name.replace(' 10% DPG', '<br>10% DPG');
-  else if (scent.name.includes(' 10% TEC')) document.getElementById('detail-name').innerHTML = scent.name.replace(' 10% TEC', '<br>10% TEC');
-  else document.getElementById('detail-name').innerHTML = scent.name;
+  document.getElementById('detail-name').innerHTML = scent.name;
   document.getElementById('detail-cas-val').innerText = scent.cas || '-';
   const formula = FORMULA_MAP[scent.name] || ''; const formulaBlock = document.getElementById('detail-formula-block'); const formulaEl = document.getElementById('detail-formula');
   if (formula) { formulaBlock.classList.remove('hidden'); formulaEl.innerText = formula; } else { formulaBlock.classList.add('hidden'); formulaEl.innerText = ''; }
@@ -918,7 +1100,26 @@ window.addEventListener('mousemove', (e) => { if (isDraggingIndex) handleIndexIn
 window.addEventListener('mouseup', () => { if (isDraggingIndex) { isDraggingIndex = false; openDetail(scentPool[previewIndex].name); } });
 indexLine.addEventListener('touchstart', (e) => { isDraggingIndex = true; handleIndexInteraction(e); }, {passive: false});
 window.addEventListener('touchmove', (e) => { if (isDraggingIndex) { e.preventDefault(); handleIndexInteraction(e); } }, {passive: false});
-window.addEventListener('touchend', () => { if (isDraggingIndex) { isDraggingIndex = false; openDetail(scentPool[previewIndex].name); } });
+indexLine.addEventListener('touchend', () => { if (isDraggingIndex) { isDraggingIndex = false; openDetail(scentPool[previewIndex].name); } });
+
+/* ==========================================
+   全新升級：雜誌感工具欄 (極細線條與毛玻璃)
+   ========================================== */
+const hjHamburger = document.getElementById('hjHamburger');
+const hjNavMenu = document.getElementById('hjNavMenu');
+
+if (hjHamburger && hjNavMenu) {
+  hjHamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hjHamburger.classList.toggle('active');
+    hjNavMenu.classList.toggle('show');
+  });
+
+  window.addEventListener('click', () => {
+    hjHamburger.classList.remove('active');
+    hjNavMenu.classList.remove('show');
+  });
+}
 </script>
 </body>
 </html>

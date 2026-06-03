@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triangle Test - Olfactory Journal</title>
+<style>
+  /* 基礎環境完全同步首頁 */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; overflow-x: hidden; }
+  body { 
+    background: #f2eee8; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+    color: #24120d; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  .page-container { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    flex-direction: column; 
+  }
+  h1 { 
+    font-family: "Times New Roman", Georgia, serif; 
+    font-size: clamp(40px, 4vw, 60px); 
+    font-weight: 500; 
+    letter-spacing: -1px; 
+  }
+  
+  /* ==========================================
+     下面 100% 原封不動複製你首頁完美運作的 CSS
+     ========================================== */
+  .hj-nav-container {
+    position: fixed;
+    top: 42px;
+    right: 3vw;
+    z-index: 999999;
+  }
+  .hj-hamburger {
+    width: 32px;
+    height: 20px;
+    cursor: pointer;
+    z-index: 1000000;
+    position: relative;
+  }
+  .hj-hamburger span {
+    display: block;
+    height: 1.5px;
+    width: 100%;
+    background-color: #24120d; 
+    position: absolute;
+    left: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hj-hamburger span:nth-child(1) { top: 0px; }
+  .hj-hamburger span:nth-child(2) { top: 9px; }
+  .hj-hamburger span:nth-child(3) { top: 18px; }
+  
+  .hj-hamburger.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .hj-hamburger.active span:nth-child(2) { opacity: 0; }
+  .hj-hamburger.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+  
+  .hj-nav-menu {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0px;
+    background: rgba(251, 250, 247, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(36, 18, 13, 0.06);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+    min-width: 180px;
+    padding: 12px 0;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .hj-nav-menu.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hj-nav-menu a {
+    padding: 14px 24px;
+    text-decoration: none;
+    color: #24120d;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    transition: background 0.3s ease, padding-left 0.3s ease;
+  }
+  .hj-nav-menu a:hover {
+    background: rgba(36, 18, 13, 0.03);
+    padding-left: 28px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hj-nav-container">
+  <div class="hj-hamburger" id="hjHamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="hj-nav-menu" id="hjNavMenu">
+    <a href="index.html">Collection</a>
+    <a href="triangle.html">Triangle Test</a>
+    <a href="accord.html">Accord</a>
+    <a href="enfleurage.html">Enfleurage</a>
+  </div>
+</div>
+
+<div class="page-container">
+  <h1>Triangle Test</h1>
+</div>
+
+<script>
+  const hjHamburger = document.getElementById('hjHamburger');
+  const hjNavMenu = document.getElementById('hjNavMenu');
+
+  if (hjHamburger && hjNavMenu) {
+    hjHamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hjHamburger.classList.toggle('active');
+      hjNavMenu.classList.toggle('show');
+    });
+
+    window.addEventListener('click', () => {
+      hjHamburger.classList.remove('active');
+      hjNavMenu.classList.remove('show');
+    });
+  }
+</script>
+</body>
+</html>
